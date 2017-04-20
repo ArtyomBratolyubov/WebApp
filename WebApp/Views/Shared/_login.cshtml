@@ -1,0 +1,22 @@
+﻿@if (Request.IsAuthenticated)
+{
+    <li class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            <span class="glyphicon glyphicon-user"></span> @User.Identity.Name<span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li>
+                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                }
+            <li><a href="javascript:document.getElementById('logoutForm').submit()">LogOff</a></li>
+        </ul>
+    </li>
+
+}
+else
+{
+    <li><a href="~/Account/Registration"><span class="glyphicon glyphicon-user"></span> Зарегистрироваться</a></li>
+    <li><a href="~/Account/Login"><span class="glyphicon glyphicon-log-in"></span> Войти</a></li>
+}
