@@ -1,18 +1,190 @@
-﻿body {
-    padding-top: 50px;
-    padding-bottom: 20px;
+﻿
+body {
+    background: #252830;
+    margin: 0;
+    padding: 0;
 }
 
-/* Set padding to keep content from hitting the edges */
-.body-content {
-    padding-left: 15px;
-    padding-right: 15px;
+.top-buffer {
+    margin-top: 80px;
+    margin-bottom: 80px;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
-input,
-select,
-textarea {
-    max-width: 280px;
+html {
+    overflow-y: scroll;
+    position: relative;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
+.list-group-item {
+    background: none;
+}
+
+#img_logo {
+    width: auto;
+    height: 40px;
+    margin: 5px;
+    margin-left: 60px;
+}
+
+#navBar {
+    margin-top: 5px;
+}
+
+.navbar-default {
+    background: rgba(23,26,33, 0.9);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.slideImage {
+    height: 300px;
+    width: auto;
+}
+
+.menuActive {
+    border-radius: 10px !important;
+    width: 200px;
+    color: #1F3C4C !important;
+    background: #1989b3 !important;
+}
+
+.menuItem:hover {
+    border-radius: 10px !important;
+    width: 200px;
+    color: #1F3C4C !important;
+    background: #1997C6 !important;
+}
+
+.menuItem {
+    color: #e5e5e5 !important;
+
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+.form {
+    width: 100%;
+    padding: 15px;
+    background: #f8f8f8;
+    border: 1px solid rgba(0, 0, 0, 0.075);
+    margin-bottom: 25px;
+    color: #727272 !important;
+    font-size: 13px;
+    -webkit-transition: all 0.4s;
+    -moz-transition: all 0.4s;
+    transition: all 0.4s;
+}
+
+    .form:hover {
+        border: 1px solid #8BC3A3;
+    }
+
+    .form:focus {
+        color: white;
+        outline: none;
+        border: 1px solid #8BC3A3;
+    }
+
+.textarea {
+    height: 200px;
+    max-height: 200px;
+    max-width: 100%;
+}
+
+
+.button {
+    padding: 8px 12px;
+    background: #0A5175;
+    display: block;
+    width: 120px;
+    margin: 10px 0 0px 0;
+    border-radius: 3px;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    transition: all 0.3s;
+    text-align: center;
+    font-size: 0.8em;
+    box-shadow: 0px 1px 4px rgba(0,0,0, 0.10);
+    -moz-box-shadow: 0px 1px 4px rgba(0,0,0, 0.10);
+    -webkit-box-shadow: 0px 1px 4px rgba(0,0,0, 0.10);
+}
+
+    .button:hover {
+        background: #8BC3A3;
+        color: white;
+    }
+
+
+.form-btn {
+    width: 180px;
+    height: auto;
+    padding: 15px;
+    color: #fff;
+    background: #8BC3A3;
+    border: none;
+    border-radius: 3px;
+    outline: none;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    transition: all 0.3s;
+    margin: auto;
+    box-shadow: 0px 1px 4px rgba(0,0,0, 0.10);
+    -moz-box-shadow: 0px 1px 4px rgba(0,0,0, 0.10);
+    -webkit-box-shadow: 0px 1px 4px rgba(0,0,0, 0.10);
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+    .form-btn:hover {
+        background: #111;
+        color: white;
+        border: none;
+    }
+
+    .form-btn:active {
+        opacity: 0.9;
+    }
+
+.reveal-animation {
+    animation: opac 0.8s;
+}
+
+@keyframes opac {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 12px; /* for vertical scrollbars */
+    height: 12px; /* for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.carousel-holder {
+    margin-bottom: 10px;
+}
+
+#footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+}

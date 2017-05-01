@@ -1,0 +1,13 @@
+﻿<div class="col-md-offset-2 col-md-4">
+    <div class="reveal-animation">
+        <div class="">
+            <input type="text" id="loginInpt" class="form" placeholder="Логин..." ng-model="Login"/>
+            <input type="password" id="pasInpt" class="form" placeholder="Пароль..." ng-model="Password"/>
+        </div>
+        <div style="margin-bottom: 10px;">
+            <button type="submit" id="submit" name="submit" class="form-btn" ng-click="login()">Войти</button>
+        </div>
+        <div ng-repeat="error in errors" style="color: red">{{error}}</div>
+    </div>
+</div>
+

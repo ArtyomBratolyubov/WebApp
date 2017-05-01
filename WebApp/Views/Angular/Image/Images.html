@@ -1,0 +1,65 @@
+<div class="reveal-animation">
+    <div class="row" style="margin: 0">
+        <div class="col-sm-3 col-xs-4 col-md-1" style="margin-bottom: 10px; padding-left: 0;">
+            <a href="/Home/Albums" type="button" class="btn btn-success" style="width: 110px;margin: auto"><span class="glyphicon glyphicon-arrow-left"></span> Back </a>
+        </div>
+        <div class="col-sm-4 col-xs-7 col-md-3">
+            <!--<div class="panel panel-default" style="border: none; ">
+                <div class="panel-body" style="padding: 5px;background-color:#8BC3A3;" ng-if="exts.length!=0">
+                    <span ng-repeat="e in exts" style="margin-right: 20px;"><input type="checkbox" ng-model=e.checked ng-click="filterExt()">{{e.name}}</span>
+                </div>
+            </div>-->
+            <div  style="border: none;">
+                <div style="padding: 5px; background-color: #8BC3A3;" ng-if="exts.length!=0">
+                    <span ng-repeat="e in exts" style="margin-right: 20px;"><input type="checkbox" ng-model=e.checked ng-click="filterExt()">{{e.name}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 col-xs-4 col-md-2" style="margin-bottom: 10px">
+            <button ng-click="DeleteAlbum()" ng-if="!allImgMode && User.role == 0" class="btn btn-danger ">Delete album <span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+    </div>
+    <div class="row" style="margin: 0">
+        
+    </div>
+    <div class="row" style="margin: 0">
+        <img src="../../../Content/Images/Technical/loader.gif" ng-if="!loaded" style="display: block; margin: auto; width: auto; height: 80%;" />
+        <div ng-repeat="image in images">
+            <div class="col-lg-2 col-md-2 col-sm-4 col-xs-6 reveal-animation" style="height: 300px;">
+                <div class="imgBox">
+                    <div>
+                        <div class="desc" style="color: aliceblue">
+                            {{image.Name}}
+                        </div>
+                        <div style="background-image: url({{'../../..'+image.CoverUrl}}); " class="imgBgCentered" ng-click="viewImg(image)"></div>
+                        <div class="desc" style="color: aliceblue">
+                            {{image.DateAdded}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-if="imgView">
+        <div class="reveal-animation">
+            <img src="../../../Content/Images/Technical/grey.png" style="width: 100%; height: 100%; position: fixed; top: 0; background-color: rgba(0, 0, 0, 0.45)" ng-click="closeViewImg()" />
+
+            <img src={{img.CoverUrl}} ng-click="NextImg()" class="imgBig" />
+            <button class="prevBtn btn" ng-click="PrevImg()"><span class="glyphicon glyphicon-step-backward"></span></button>
+            <button class="prevBtn btn" style="left: auto; right: 0;" ng-click="NextImg()"><span class="glyphicon glyphicon-step-forward"></span></button>
+            <span class="glyphicon glyphicon-remove-circle closePrev " ng-click="closeViewImg()"></span>
+            <div class="imgBtnCont">
+
+                <button class="btn form-btn imgBtn" ng-click="AddToCart()" ng-if="!img.isInCart">Add to cart</button>
+                <button class="btn del-btn imgBtn" ng-click="DeleteImg()" ng-if="User.id==img.Author">Delete</button>
+                <!--<div style="margin-left: 10px; padding: 0">
+                    <div star-rating rating-value="1" max="5" on-rating-selected="getSelectedRating(rating)"></div>
+                </div>-->
+            </div>
+
+        </div>
+        <span class="glyphicon glyphicon-remove-circle closePrev " ng-click="closeViewImg()"></span>
+    </div>
+</div>
+
+

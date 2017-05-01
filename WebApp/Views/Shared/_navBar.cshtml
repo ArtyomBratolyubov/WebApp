@@ -1,37 +1,39 @@
-﻿
-<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-left" href="/"><img alt="MUZIX" src="~/Content/images/logo.png" id="img_logo"></a>
-        </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <form class="navbar-form" role="search" action="/Search/Simple" method="get">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Singer, album or song..." name="q">
-                            <div class="input-group-btn">
-                                <a href="#" class="dropdown-toggle btn btn-default" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><span style="left:18px;position:relative;">Extened</span></li>
-                                    <li role="separator" class="divider"></li>
-                                    <li><a href="~/Search/ExtendedSong">Song</a></li>
-                                </ul>
-                                <button class="btn btn-danger">
-                                    Search
-                                    <i class="glyphicon glyphicon-search"></i>
-                                </button>
+﻿<div ng-controller="NavBarController">
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" ng-click="isCollapsed = !isCollapsed" data-toggle="collapse" data-target="#navBar" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-left" href="/"><img alt="GameStore" src="~/Images/logo.png" id="img_logo"></a>
+            </div>
+            <div class="collapse navbar-collapse" uib-collapse="isCollapsed" id="navBar">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <form class="navbar-form" role="search" action="/Search/Simple" method="get">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Singer, album or song..." name="q">
+                                <div class="input-group-btn">
+                                    <a href="#" class="dropdown-toggle btn btn-default" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> <span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><span style="left:18px;position:relative;">Extened</span></li>
+                                        <li role="separator" class="divider"></li>
+                                        <li><a href="~/Search/ExtendedSong">Song</a></li>
+                                    </ul>
+                                    <button class="btn btn-danger">
+                                        Search
+                                        <i class="glyphicon glyphicon-search"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
-                </li>
-                @Html.Partial("_login")
-            </ul>
+                        </form>
+                    </li>
+                    @Html.Partial("_login")
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
+</div>

@@ -1,0 +1,23 @@
+﻿<div class="reveal-animation">
+    <div class="row" style="margin: 0">
+        <img src="../../../Content/Images/Technical/loader.gif" ng-if="!loaded" style="display: block; margin: auto; width: auto; height: 80%;" />
+        <div ng-repeat="image in images">
+            <div class="col-lg-2 col-md-2 col-sm-4 col-xs-6 reveal-animation" style="height: 300px;">
+                <div class="imgBox">
+                    <div>
+                        <div class="desc" style="color: aliceblue">
+                            <span>{{image.Name}} </span>
+                            <span class="glyphicon glyphicon-remove" style="float: right; cursor: pointer" ng-click="RemoveFromCart(image.Id)"></span>
+                        </div>
+                        <div style="background-image: url({{'../../..'+image.CoverUrl}}); cursor:auto;" class="imgBgCentered" ng-click="viewImg(image)">
+                            
+                        </div>
+                        <div class="desc" style="color: aliceblue">
+                            {{image.DateAdded}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

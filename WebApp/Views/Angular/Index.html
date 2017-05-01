@@ -1,0 +1,20 @@
+﻿<div class="reveal-animation">
+    <div class="row" style="margin: 0">
+        <div class="col-md-offset-3 col-md-6">
+            <h1 style="text-shadow: rgb(0, 255, 78) 0 0 20px; text-align: center">Travaling is everything</h1>
+        </div>
+    </div>
+    <div class="row" style="margin: 0">
+        <div class="col-md-offset-3 col-md-6">
+            <p ng-show="!isEdit" style="color: aliceblue">
+                {{siteDesc}}
+            </p>
+            <div ng-show="User.role == 0">
+                <textarea ng-show="isEdit" ng-model="siteDesc" id="descTextArea" class="form" rows="10"></textarea>
+                <input ng-show="!isEdit" class="form-btn btn" type="button" ng-click="Edit()" id="editBtn" value="Edit" />
+                <input ng-show="isEdit" class="form-btn btn" type="button" ng-click="Cancel()" id="cancelBtn" value="Cancel" />
+                <input ng-show="isEdit" class="form-btn btn" type="button" ng-click="Save()" id="saveBtn" value="Save" />
+            </div>
+        </div>
+    </div>
+</div>

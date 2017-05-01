@@ -1,0 +1,9 @@
+﻿
+<div>
+    <a href="Home/AddImage" id="addImgBtn">Add image</a>
+    <div ng-repeat="i in curImagesContainer">
+        <image-preview img="i"></image-preview>
+        <input type="button" value="del" ng-click="DeleteImage(i.id)">
+        <hr/>
+    </div>
+</div>

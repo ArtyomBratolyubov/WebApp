@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="main">
+@Scripts.Render("~/bundles/angular")
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameStore</title>
+    <base href="/">
+    <link rel="icon" type="image/ico" href="~/Images/favicon.ico"/>
+    @Styles.Render("~/Content/css")
+</head>
+
+<body>
+
+@Html.Partial("_navbar")
+
+<div class="top-buffer" style="z-index: 3">
+    <div class="container">
+
+        <div class="row">
+
+
+            <div class="col-xs-3">
+                <div class="affix">
+                    <div class="list-group" ng-controller="SideMenuController">
+                        <div ng-repeat="item in Items">
+                            <a href="{{item.url}}" ng-class="item.checked ? 'list-group-item menuActive menuItem' : 'list-group-item menuItem'" ng-click="ItemClicked(item)">{{item.name}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-view>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="footer">
+
+        <hr>
+
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Course work - GameStore 2017</p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+</div>
+
+
+</body>
+
+</html>
+

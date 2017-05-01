@@ -9,7 +9,7 @@ namespace WebApp.Controllers
     public class HomeController : Controller
     {
         // GET: Index
-        public ActionResult Index()
+        public ActionResult Layout()
         {
             return View();
         }

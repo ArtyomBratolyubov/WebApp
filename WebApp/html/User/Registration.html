@@ -1,0 +1,14 @@
+﻿<div class="col-md-offset-2 col-md-4">
+    <div class="reveal-animation">
+        <div class="">
+            <input type="text" name="name" id="name" class="form" placeholder="Логин..." ng-model="Login" />
+            <input type="password" name="name" id="name" class="form" placeholder="Пароль..." ng-model="Password" />
+            <input type="password" name="name" id="name" class="form" placeholder="Повторите пароль..." ng-model="SecPassword" />
+        </div>
+        <div class="">
+            <button type="submit" id="submit" name="submit" class="form-btn" ng-click="registrate()">Зарегистрироваться</button>
+        </div>
+        <div ng-repeat="error in errors" style="color: red">{{error}}</div>
+    </div>
+</div>
+
