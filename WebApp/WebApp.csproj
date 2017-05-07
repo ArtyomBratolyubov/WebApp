@@ -141,8 +141,22 @@
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\Images\Technical\bg1.jpg" />
+    <Content Include="Content\Images\Technical\bg2.jpg" />
+    <Content Include="Content\Images\Technical\bg3.jpg" />
+    <Content Include="Content\Images\Technical\bg4.jpg" />
+    <Content Include="Content\Images\Technical\bg5.jpg" />
+    <Content Include="Content\Images\Technical\grey.png" />
+    <Content Include="Content\Images\Technical\loader.gif" />
+    <Content Include="Content\Images\Technical\noimagefound.jpg" />
     <Content Include="Content\ui-bootstrap-csp.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="html\Company\AddCompany.html" />
+    <Content Include="html\Company\AllCompanies.html" />
+    <Content Include="html\Genre\EditGenre.html" />
+    <Content Include="html\Genre\DeleteGenre.html" />
+    <Content Include="html\Genre\AllGenres.html" />
+    <Content Include="html\Genre\AddGenre.html" />
     <Content Include="Images\favicon.ico" />
     <Content Include="Images\logo.png" />
     <Content Include="js\main.js" />
@@ -215,22 +229,38 @@
     <Content Include="Scripts\angular-route.min.js" />
     <Content Include="Scripts\angular.js" />
     <Content Include="Scripts\angular.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\Home\Layout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\CompanyController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\GenreController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ImagesHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
+    <Folder Include="Views\User\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DAO\DAO.csproj">
+      <Project>{A58A7DC0-6514-408E-9933-7BB0ED8B4E93}</Project>
+      <Name>DAO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Models\Models.csproj">
+      <Project>{53D18A16-9C34-4462-A44C-87883052ADF3}</Project>
+      <Name>Models</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

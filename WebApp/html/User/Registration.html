@@ -8,7 +8,7 @@
         <div class="">
             <button type="submit" id="submit" name="submit" class="form-btn" ng-click="registrate()">Зарегистрироваться</button>
         </div>
-        <div ng-repeat="error in errors" style="color: red">{{error}}</div>
+        <div ng-repeat="error in errors track by error" style="color: red" class="reveal-animation">{{error}}</div>
     </div>
 </div>
 

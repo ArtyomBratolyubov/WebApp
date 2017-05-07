@@ -1,22 +1,13 @@
-﻿@if (Request.IsAuthenticated)
-{
-    <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-            <span class="glyphicon glyphicon-user"></span> @User.Identity.Name<span class="caret"></span>
-        </a>
-        <ul class="dropdown-menu">
-            <li>
-                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
-                {
-                    @Html.AntiForgeryToken()
-                }
-            <li><a href="javascript:document.getElementById('logoutForm').submit()">LogOff</a></li>
-        </ul>
-    </li>
-
-}
-else
-{
-    <li><a href="~/Home/Registration"><span class="glyphicon glyphicon-user"></span> Зарегистрироваться</a></li>
-    <li><a href="~/Home/Login"><span class="glyphicon glyphicon-log-in"></span> Войти</a></li>
-}
+﻿
+<li id="userDropdown" uib-dropdown ng-if="isAuthenticated.Value">
+    <a href="#" uib-dropdown-toggle data-toggle="userDropdown" class="userBtn" >
+        <span class="glyphicon glyphicon-user"></span> {{User.login}} <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu" uib-dropdown-menu>
+        <li><a href="#" >Настройки</a></li>
+        <li class="divider"></li>
+        <li><a href="#" id="logOffBtn" ng-click="logOff()" >Выйти</a></li>
+    </ul>
+</li>
+<li ng-if="!isAuthenticated.Value"><a href="~/Registration"><span class="glyphicon glyphicon-user"></span> Регистрация</a></li>
+<li ng-if="!isAuthenticated.Value"><a href="~/Login" id="loginBtn"><span class="glyphicon glyphicon-log-in"></span> Войти</a></li>

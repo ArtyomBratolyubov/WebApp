@@ -13,26 +13,28 @@
             <div class="collapse navbar-collapse" uib-collapse="isCollapsed" id="navBar">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <form class="navbar-form" role="search" action="/Search/Simple" method="get">
+                        <div class="navbar-form">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Singer, album or song..." name="q">
+                                <input type="text" class="form-control" placeholder="Игра, студия, издатель...">
                                 <div class="input-group-btn">
-                                    <a href="#" class="dropdown-toggle btn btn-default" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> <span class="caret"></span></a>
-                                    <ul class="dropdown-menu">
-                                        <li><span style="left:18px;position:relative;">Extened</span></li>
-                                        <li role="separator" class="divider"></li>
-                                        <li><a href="~/Search/ExtendedSong">Song</a></li>
-                                    </ul>
                                     <button class="btn btn-danger">
-                                        Search
+                                        Поиск
                                         <i class="glyphicon glyphicon-search"></i>
                                     </button>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </li>
                     @Html.Partial("_login")
                 </ul>
+
+            </div>
+        </div>
+        <div >
+            <div class="progress barAnimation" style="margin: 0;" ng-class="{'barOpen': loadBar.show}" >
+                <div class="progress-bar progress-bar-striped progress-bar-danger active" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+
+                </div>
             </div>
         </div>
     </nav>

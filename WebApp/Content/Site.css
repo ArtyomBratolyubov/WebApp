@@ -59,7 +59,6 @@ html {
 
 .menuItem {
     color: #e5e5e5 !important;
-
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
@@ -137,7 +136,7 @@ html {
     -webkit-box-shadow: 0px 1px 4px rgba(0,0,0, 0.10);
     margin-top: 10px;
     margin-bottom: 10px;
-    margin-right: 10px;
+    margin-right: 0px;
 }
 
     .form-btn:hover {
@@ -149,6 +148,10 @@ html {
     .form-btn:active {
         opacity: 0.9;
     }
+
+.red-btn {
+    background: red;
+}
 
 .reveal-animation {
     animation: opac 0.8s;
@@ -162,6 +165,15 @@ html {
     to {
         opacity: 1;
     }
+}
+
+.barAnimation {
+    height: 0px;
+    -webkit-transition: height 0.5s;
+}
+
+.barOpen {
+    height: 10px;
 }
 
 ::-webkit-scrollbar {
@@ -187,4 +199,31 @@ html {
     left: 0;
     right: 0;
     height: 80px;
+}
+
+.userBtn {
+    background: none !important;
+    color: #626262 !important;
+}
+
+    .userBtn:hover {
+        color: #ffffff !important;
+    }
+
+.pageHeader {
+    position: relative;
+    font-size: 25px;
+    margin-left: 5px;
+    top: 10px;
+}
+
+.hideOverflow {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.div [class*="col-"] {
+    margin-bottom: -99999px;
+    padding-bottom: 99999px;
 }

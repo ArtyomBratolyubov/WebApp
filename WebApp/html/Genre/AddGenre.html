@@ -1,0 +1,14 @@
+﻿<div class="col-md-offset-1 col-md-5">
+    <div class="reveal-animation">
+        <h3>Новый жанр</h3>
+        <hr />
+        <div class="">
+            <input type="text" id="loginInpt" class="form" placeholder="Название..." ng-model="Name" />
+            <textarea rows="6" type="text" id="pasInpt" class="form" placeholder="Описание..." ng-model="Desc"></textarea>
+        </div>
+        <div style="margin-bottom: 10px;">
+            <button type="submit" id="submit" name="submit" class="form-btn" ng-click="Add()">Добавить</button>
+        </div>
+        <div ng-repeat="error in errors" style="color: red">{{error}}</div>
+    </div>
+</div>
