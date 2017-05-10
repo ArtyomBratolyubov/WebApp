@@ -141,6 +141,7 @@
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\font-awesome.min.css" />
     <Content Include="Content\Images\Technical\bg1.jpg" />
     <Content Include="Content\Images\Technical\bg2.jpg" />
     <Content Include="Content\Images\Technical\bg3.jpg" />
@@ -151,8 +152,11 @@
     <Content Include="Content\Images\Technical\noimagefound.jpg" />
     <Content Include="Content\ui-bootstrap-csp.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="html\Company\EditCompany.html" />
     <Content Include="html\Company\AddCompany.html" />
     <Content Include="html\Company\AllCompanies.html" />
+    <Content Include="html\Company\DeleteCompany.html" />
+    <Content Include="html\Game\AddGame.html" />
     <Content Include="html\Genre\EditGenre.html" />
     <Content Include="html\Genre\DeleteGenre.html" />
     <Content Include="html\Genre\AllGenres.html" />
@@ -238,7 +242,9 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\GameController.cs" />
     <Compile Include="Controllers\CompanyController.cs" />
+    <Compile Include="Controllers\CountryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\GenreController.cs" />
     <Compile Include="Controllers\UserController.cs" />

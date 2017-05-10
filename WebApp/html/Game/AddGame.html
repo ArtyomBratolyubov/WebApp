@@ -1,0 +1,69 @@
+﻿<div class="row reveal-animation">
+    <div class="col-md-offset-3 col-md-9">
+        <h3>Новая игра</h3>
+        <hr />
+        <div class="col-md-7">
+
+            <input type="text" name="name" id="name" class="form" placeholder="Название..." ng-model="model.Name" />
+            <span class="text-muted" style="color: gainsboro">
+                Компания
+            </span>
+            <select class="form" ng-model="model.Company.Id" ng-options="template.id as template.companyName for template in Companies"></select>
+
+
+            <span class="text-muted" style="color: gainsboro">
+                Жанры
+            </span>
+            <select class="form" multiple ng-model="chosenGenres" ng-options="template.id as template.name for template in Genres"></select>
+
+
+            <span class="text-muted" style="color: gainsboro">
+                Возрастное ограничение:
+            </span>
+            <input type="number" class="form" ng-model="model.Age" style="width: 70px; background: none; color: white; border: none" min="0" max="21" value="0">
+            <span style="color: gainsboro; font-size: 20px;">
+                <b>
+                    +
+                </b>
+            </span>
+            <br/>
+            <span class="text-muted" style="color: gainsboro">
+                Дата выхода:
+            </span>
+            <input type="date" class="form" ng-model="model.DateOut" style="width: 150px; background: none; color: white; border: none">
+
+            <textarea name="message" id="message" class="form textarea" placeholder="Системные требования..." ng-model="model.Requirements"></textarea>
+            <input type="file" id="selectedFile" style="display: none;" ng-model-instant onchange="angular.element(this).scope().imageUpload(event)" accept="image/gif, image/jpeg, image/png" />
+
+            <textarea name="message" id="message" class="form textarea" placeholder="Описание..." ng-model="model.Description"></textarea>
+            <input type="file" id="selectedFile" style="display: none;" ng-model-instant onchange="angular.element(this).scope().imageUpload(event)" accept="image/gif, image/jpeg, image/png" />
+
+            <span class="text-muted" style="color: gainsboro">
+                Цена:
+            </span>
+            <input type="number" class="form" ng-model="model.Price" style="width: 100px; background: green; color: white; border: none; border-radius: 20px;" min="0" value="0">
+            <span style="color: gainsboro; font-size: 20px;">
+                <span class="fa" style="font-size: 25px;">
+                    $
+                </span>
+            </span>
+
+            <br />
+            <br />
+            <div style="margin-bottom: 10px;">
+                <button class="form-btn btn" ng-click="AddGame()">Добавить</button>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <div ng-repeat="error in errors" style="color: red">{{error}}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-danger btn-xs" style="position: absolute; top: 0; " ng-click="ResetImage()">X</button>
+            <img class="img-thumbnail" width="150" ng-src="{{img}}" id="img" style="margin-bottom: 10px;" />
+            <input type="button" class="btn-default btn" value="Обзор..." onclick="document.getElementById('selectedFile').click();" />
+            <span style="color: aliceblue">{{file}}</span>
+        </div>
+    </div>
+</div>
+
+

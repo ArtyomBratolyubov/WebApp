@@ -71,7 +71,7 @@ html {
     background: #f8f8f8;
     border: 1px solid rgba(0, 0, 0, 0.075);
     margin-bottom: 25px;
-    color: #727272 !important;
+    color: #727272;
     font-size: 13px;
     -webkit-transition: all 0.4s;
     -moz-transition: all 0.4s;
@@ -83,7 +83,7 @@ html {
     }
 
     .form:focus {
-        color: white;
+       
         outline: none;
         border: 1px solid #8BC3A3;
     }

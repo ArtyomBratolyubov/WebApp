@@ -1,0 +1,33 @@
+﻿<div class="row reveal-animation">
+    <div class="col-md-offset-3 col-md-9">
+        <h3>Редактировать компанию</h3>
+        <hr />
+        <div class="col-md-6">
+
+            <input type="text" name="name" id="name" class="form" placeholder="Название..." ng-model="model.companyName" />
+            <textarea name="message" id="message" class="form textarea" placeholder="Описание..." ng-model="model.companyDescription"></textarea>
+            <p class="text-muted" style="color: gainsboro">
+                Страна
+            </p>
+            <select class="form" ng-model="model.country.id" ng-options="template.id as template.countryName for template in Countries"></select>
+            <input type="file" id="selectedFile" style="display: none;" ng-model-instant onchange="angular.element(this).scope().imageUpload(event)" accept="image/gif, image/jpeg, image/png" />
+            <input type="button" class="btn-default btn" value="Обзор..." onclick="document.getElementById('selectedFile').click();" />
+            <span style="color: aliceblue">{{file}}</span>
+            <br />
+            <br />
+            <div style="margin-bottom: 10px;">
+                <button class="form-btn btn red-btn" ng-click="EditCompany()">Редактировать</button>
+                <button type="submit" id="submit" name="submit" class="form-btn pull-right" ng-click="Cancel()">Отмена</button>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <div ng-repeat="error in errors" style="color: red">{{error}}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-danger btn-xs" style="position: absolute; top: 0; " ng-click="ResetImage()">X</button>
+            <img class="img-thumbnail" width="150" ng-src="{{img}}" id="img" />
+        </div>
+    </div>
+</div>
+
+

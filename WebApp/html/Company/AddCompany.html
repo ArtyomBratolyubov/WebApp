@@ -6,6 +6,10 @@
 
             <input type="text" name="name" id="name" class="form" placeholder="Название..." ng-model="Name" />
             <textarea name="message" id="message" class="form textarea" placeholder="Описание..." ng-model="Desc"></textarea>
+            <span class="text-muted" style="color: gainsboro">
+                Страна
+            </span>
+            <select class="form" ng-model="Country" ng-options="template.id as template.countryName for template in Countries"></select>
             <input type="file" id="selectedFile" style="display: none;" ng-model-instant onchange="angular.element(this).scope().imageUpload(event)" accept="image/gif, image/jpeg, image/png" />
             <input type="button" class="btn-default btn" value="Обзор..." onclick="document.getElementById('selectedFile').click();" />
             <span style="color: aliceblue">{{file}}</span>

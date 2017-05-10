@@ -1,0 +1,23 @@
+﻿
+
+<div class="col-md-offset-1 col-md-5">
+    <div class="reveal-animation">
+        <h3>Удалить компанию?</h3>
+        <hr />
+        <div class="row">
+            <div>
+                <img ng-src="{{model.url}}" class="col-md-4" />
+            </div>
+            <div class="">
+                <h3>{{model.companyName}}</h3>
+                <p nf-if="genre.Description">{{model.companyDescription}}</p>
+            </div>
+        </div>
+        <div style="margin-bottom: 10px;" class="row">
+            <button type="submit" id="submit" name="submit" class="form-btn red-btn" ng-click="Delete()">Удалить</button>
+            <button type="submit" id="submit" name="submit" class="form-btn pull-right" ng-click="Cancel()">Отмена</button>
+        </div>
+        <div ng-repeat="error in errors" style="color: red">{{error}}</div>
+    </div>
+</div>
+

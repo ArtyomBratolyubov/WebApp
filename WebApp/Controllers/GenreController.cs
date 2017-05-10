@@ -5,6 +5,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using DAO;
+using DAO.Services;
 using WebApp.Models;
 
 namespace WebApp.Controllers
@@ -33,15 +34,15 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
-        public JsonResult Get(int? id)
+        public string Get(int? id)
         {
-            return Json(service.Get((int)id), JsonRequestBehavior.AllowGet);
+            return service.Get((int) id);
         }
 
         [HttpPost]
-        public JsonResult GetAll()
+        public string GetAll()
         {
-            return Json(service.All.OrderBy(m => m.Name), JsonRequestBehavior.AllowGet);
+            return service.All;
         }
     }
 }

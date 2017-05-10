@@ -33,6 +33,17 @@ namespace WebApp.Helpers
             return name;
         }
 
+        public static void DeleteImage(string src, string path)
+        {
+            if (src.Contains("noimagefound")) 
+                return;
+
+            if (File.Exists(path + src))
+            {
+                File.Delete(path + src);
+            }
+        }
+
         public static string GetExtension(string str)
         {
             StringBuilder ext = new StringBuilder();

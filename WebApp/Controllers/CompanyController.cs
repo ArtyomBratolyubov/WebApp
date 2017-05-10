@@ -5,6 +5,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using DAO;
+using DAO.Services;
 using Models;
 using WebApp.Helpers;
 using WebApp.Models;
@@ -18,6 +19,7 @@ namespace WebApp.Controllers
         [HttpPost]
         public void Add(CompanyModel model)
         {
+
             string base64 = Request.Form.ToString();
 
             string path = Server.MapPath("/");
@@ -30,6 +32,7 @@ namespace WebApp.Controllers
             {
                 model.ImageUrl = "/Content/Images/Technical/noimagefound.jpg";
             }
+
             service.Add(model);
 
         }
@@ -37,13 +40,25 @@ namespace WebApp.Controllers
         [HttpPost]
         public void Edit(CompanyModel model)
         {
+            string base64 = Request.Form.ToString();
+
+            string path = Server.MapPath("/");
+
+            if (base64.Length != 0)
+            {
+                ImagesHelper.DeleteImage(model.ImageUrl, path);
+                model.ImageUrl = "/Content/Images/All/" + ImagesHelper.SaveImage(base64, path);
+            }
+
             service.Edit(model);
         }
 
         [HttpPost]
-        public void Delete(int? id)
+        public void Delete(CompanyModel model)
         {
-            service.Remove((int)id);
+            string path = Server.MapPath("/");
+            ImagesHelper.DeleteImage(model.ImageUrl, path);
+            service.Remove(model.Id.Value);
         }
 
         [HttpPost]
@@ -53,9 +68,9 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetAll()
+        public string GetAll()
         {
-            return Json(service.All.OrderBy(m => m.Name), JsonRequestBehavior.AllowGet);
+            return service.All;
         }
     }
 }

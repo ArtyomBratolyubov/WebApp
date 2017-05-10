@@ -147,7 +147,9 @@ app.controller("GenresController", [
         var prom = GenreService.GetAll();
 
         prom.then(function (value) {
-            $scope.Genres = value;
+            $scope.Genres = value.sort(function (a, b) {
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            });
             LoadBarService.Hide();
         });
 
@@ -185,7 +187,9 @@ app.controller("AddGenreController", [
     }
 ]);
 app.controller("DeleteGenreController", [
-    "$scope", "$http", "GenreService", "$routeParams", "$location", function ($scope, $http, GenreService, $routeParams, $location) {
+    "$scope", "$http", "GenreService", "$routeParams", "$location", "LoadBarService",
+    function ($scope, $http, GenreService, $routeParams, $location, LoadBarService) {
+        LoadBarService.Show();
         if (!$routeParams.id || $routeParams.id < 1) {
             $location.path("/Genres");
         }
@@ -193,6 +197,7 @@ app.controller("DeleteGenreController", [
 
         prom.then(function (value) {
             $scope.genre = value;
+            LoadBarService.Hide();
         });
 
         $scope.genre = {};
@@ -202,13 +207,17 @@ app.controller("DeleteGenreController", [
         }
 
         $scope.Delete = function () {
+            if (LoadBarService.Get().show)
+                return;
             GenreService.Delete($routeParams.id);
             $location.path("/Genres");
         }
     }
 ]);
 app.controller("EditGenreController", [
-    "$scope", "$http", "GenreService", "$routeParams", "$location", function ($scope, $http, GenreService, $routeParams, $location) {
+    "$scope", "$http", "GenreService", "$routeParams", "$location", "LoadBarService",
+    function ($scope, $http, GenreService, $routeParams, $location, LoadBarService) {
+        LoadBarService.Show();
         if (!$routeParams.id || $routeParams.id < 1) {
             $location.path("/Genres");
         }
@@ -216,19 +225,25 @@ app.controller("EditGenreController", [
 
         prom.then(function (value) {
             $scope.genre = value;
-
+            LoadBarService.Hide();
         });
 
         $scope.errors = [];
 
-        $scope.genre = { Name: "", Description: "" };
+        $scope.genre = { name: "", genreDescription: "" };
 
         $scope.Cancel = function () {
             $location.path("/Genres");
         }
 
         $scope.Edit = function () {
-            GenreService.Edit($scope.genre);
+            if (LoadBarService.Get().show)
+                return;
+            GenreService.Edit({
+                Id: $scope.genre.id,
+                Name: $scope.genre.name,
+                Description: $scope.genre.genreDescription
+            });
             $location.path("/Genres");
         }
     }
@@ -241,7 +256,10 @@ app.controller("CompaniesController", [
         var prom = CompanyService.GetAll();
 
         prom.then(function (value) {
-            $scope.Companies = value;
+            if (value.length)
+                $scope.Companies = value.sort(function (a, b) {
+                    return a.companyName.toLowerCase().localeCompare(b.companyName.toLowerCase());
+                });
             LoadBarService.Hide();
         });
 
@@ -249,7 +267,27 @@ app.controller("CompaniesController", [
     }
 ]);
 app.controller("AddCompanyController", [
-    "$scope", "$http", "$location", "LoadBarService", function ($scope, $http, $location, LoadBarService) {
+    "$scope", "$http", "$location", "LoadBarService", "CountryService",
+    function ($scope, $http, $location, LoadBarService, CountryService) {
+        LoadBarService.Show();
+
+        var prom = CountryService.GetAll();
+
+        prom.then(function (value) {
+            $scope.Countries = value;
+
+            if ($scope.Countries.length === 0) {
+                $scope.Countries = [{
+                    id: -1,
+                    Name: "Стран не найдено"
+                }];
+            }
+
+            $scope.Country = $scope.Countries[0].id;
+            LoadBarService.Hide();
+        });
+
+
         var imgPicked = false;
 
         $scope.imageUpload = function (event) {
@@ -284,11 +322,16 @@ app.controller("AddCompanyController", [
 
         $scope.Desc = "";
 
+        $scope.Country = {};
+
+        $scope.Countries = {};
+
         $scope.errors = [];
 
 
         $scope.AddCompany = function () {
-
+            if (LoadBarService.Get().show)
+                return;
             $scope.errors = [];
 
             if (!$scope.Name)
@@ -298,8 +341,8 @@ app.controller("AddCompanyController", [
 
             if ($scope.Name.length > 16)
                 $scope.errors.push("Название длиннее 16 символов!");
-            if ($scope.Desc.length > 400)
-                $scope.errors.push("Описание длиннее 200 символов!");
+            if ($scope.Desc.length > 300)
+                $scope.errors.push("Описание длиннее 300 символов!");
 
             if ($scope.errors.length !== 0)
                 return;
@@ -308,7 +351,9 @@ app.controller("AddCompanyController", [
 
             var company = {
                 "Name": $scope.Name,
-                "Description": $scope.Desc
+                "Description": $scope.Desc,
+                "Country.Id": $scope.Country
+
             };
 
             $http({
@@ -328,43 +373,373 @@ app.controller("AddCompanyController", [
         };
     }
 ]);
+app.controller("DeleteCompanyController", [
+    "$scope", "$http", "CompanyService", "$routeParams", "$location", "LoadBarService",
+    function ($scope, $http, CompanyService, $routeParams, $location, LoadBarService) {
+        LoadBarService.Show();
+        if (!$routeParams.id || $routeParams.id < 1) {
+            $location.path("/Companies");
+        }
+        var prom = CompanyService.Get($routeParams.id);
+
+        prom.then(function (value) {
+            $scope.model = value;
+            LoadBarService.Hide();
+
+            if (!$scope.model.id) {
+                $location.path("/Companies");
+            }
+        });
+
+        $scope.model = {};
+
+        $scope.Cancel = function () {
+            $location.path("/Companies");
+        }
+
+        $scope.Delete = function () {
+            if (LoadBarService.Get().show)
+                return;
+
+            var model = {
+                Id: $scope.model.id,
+                ImageUrl: $scope.model.url
+            }
+            CompanyService.Delete(model);
+            $location.path("/Companies");
+        }
+    }
+]);
+app.controller("EditCompanyController", [
+    "$scope", "$http", "$location", "LoadBarService", "CountryService", "$routeParams", "CompanyService",
+    function ($scope, $http, $location, LoadBarService, CountryService, $routeParams, CompanyService) {
+        if (!$routeParams.id || $routeParams.id < 1) {
+            $location.path("/Companies");
+        }
+        LoadBarService.Show();
+
+        var promCountries = CountryService.GetAll();
+
+        promCountries.then(function (value) {
+            $scope.Countries = value;
+
+            if ($scope.Countries.length === 0) {
+                $scope.Countries = [{
+                    id: -1,
+                    Name: "Стран не найдено"
+                }];
+            }
+
+            //if (model)
+            //    $scope.Country = $scope.model.country.id;
+
+            LoadBarService.Hide();
+        });
+
+
+        var prom = CompanyService.Get($routeParams.id);
+
+        prom.then(function (value) {
+
+            $scope.model = value;
+            $scope.img = value.url;
+            LoadBarService.Hide();
+
+            if (!$scope.model.id) {
+                $location.path("/Companies");
+            }
+        });
+
+
+        var imgPicked = false;
+
+        $scope.imageUpload = function (event) {
+            var files = event.target.files;
+
+            for (var i = 0; i < files.length; i++) {
+
+                var file = files[i];
+
+                $scope.file = file.name;
+                var reader = new FileReader();
+                reader.onload = $scope.imageIsLoaded;
+                reader.readAsDataURL(file);
+            }
+        };
+        $scope.imageIsLoaded = function (e) {
+            $scope.$apply(function () {
+                $scope.img = e.target.result;
+                imgPicked = true;
+            });
+        };
+        $scope.ResetImage = function () {
+            $scope.img = $scope.model.url;
+            $scope.file = "";
+            imgPicked = false;
+        }
+
+        $scope.model = {};
+
+        $scope.img = "";
+
+        $scope.Countries = {};
+
+        $scope.errors = [];
+
+        $scope.Cancel = function () {
+            $location.path("/Companies");
+        }
+
+        $scope.EditCompany = function () {
+            if (LoadBarService.Get().show)
+                return;
+            $scope.errors = [];
+
+            if (!$scope.model.companyName)
+                $scope.errors.push("Поле \"Название\" не заполнено!");
+            else if ($scope.model.companyName.length < 4)
+                $scope.errors.push("Название короче 4 символов!");
+
+            if ($scope.model.companyName.length > 16)
+                $scope.errors.push("Название длиннее 16 символов!");
+            if ($scope.model.companyDescription)
+                if ($scope.model.companyDescription.length > 300)
+                    $scope.errors.push("Описание длиннее 300 символов!");
+
+            if ($scope.errors.length !== 0)
+                return;
+
+            LoadBarService.Show();
+
+            var company = {
+                "Id": $scope.model.id,
+                "Name": $scope.model.companyName,
+                "Description": $scope.model.companyDescription,
+                "Country.Id": $scope.model.country.id,
+                "ImageUrl": $scope.model.url
+            };
+
+            $http({
+                url: "Data/Company/Edit",
+                method: "Post",
+                params: company,
+                data: imgPicked ? $scope.img : "",
+                headers: {
+                    'Content-Type': "application/x-www-form-urlencoded"
+                }
+            }).then(function (val) {
+                LoadBarService.Hide();
+                $location.path("/Companies");
+            });
+
+
+        };
+    }
+]);
+
+
+app.controller("AddGameController", [
+    "$scope", "$http", "$location", "LoadBarService", "GameService", "CompanyService", "GenreService",
+    function ($scope, $http, $location, LoadBarService, GameService, CompanyService, GenreService) {
+        $scope.model = {
+            Name: "",
+            Description: "",
+            Company: {
+                Id: 0,
+            },
+            Age: 0,
+            Requirements: "ОС: \n" +
+                "Процессор: \n" +
+                "Оперативная память: \n" +
+                "Видеокарта: \n" +
+                "DirectX: \n" +
+                "Место на диске: ",
+            Price: 0
+        };
+
+        LoadBarService.Show();
+        var load = [1, 1];
+
+        var promCompanies = CompanyService.GetAll();
+        promCompanies.then(function (value) {
+            $scope.Companies = value.sort(function (a, b) {
+                return a.companyName.toLowerCase().localeCompare(b.companyName.toLowerCase());
+            });
+
+            if ($scope.Companies.length === 0) {
+                $scope.Companies = [{
+                    id: -1,
+                    Name: "Компаний не найдено"
+                }];
+            }
+
+            $scope.model.Company.Id = $scope.Companies[0].id;
+            popLoad();
+        });
+
+        var promGenres = GenreService.GetAll();
+        promGenres.then(function (value) {
+            $scope.Genres = value.sort(function (a, b) {
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            });
+
+            if ($scope.Genres.length === 0) {
+                $scope.Genres = [{
+                    id: -1,
+                    Name: "Жанров не найдено"
+                }];
+            }
+            $scope.genre = $scope.Genres[0].id;
+            popLoad();
+        });
+
+        function popLoad() {
+            load.pop();
+
+            if (load.length === 0)
+                LoadBarService.Hide();
+        }
+
+        var imgPicked = false;
+
+        $scope.imageUpload = function (event) {
+            var files = event.target.files;
+
+            for (var i = 0; i < files.length; i++) {
+
+                var file = files[i];
+
+                $scope.file = file.name;
+                var reader = new FileReader();
+                reader.onload = $scope.imageIsLoaded;
+                reader.readAsDataURL(file);
+            }
+        };
+        $scope.imageIsLoaded = function (e) {
+            $scope.$apply(function () {
+                $scope.img = e.target.result;
+                imgPicked = true;
+            });
+        };
+        $scope.ResetImage = function () {
+            $scope.img = "/Content/Images/Technical/noimagefound.jpg";
+            imgPicked = false;
+            $scope.file = "";
+        }
+
+        $scope.img = "/Content/Images/Technical/noimagefound.jpg";
+
+        $scope.file = "";
+
+        $scope.Companies = {};
+
+        $scope.chosenGenres = [];
+
+        $scope.Genres = [];
+
+        $scope.errors = [];
+
+
+        $scope.AddGame = function () {
+            if (LoadBarService.Get().show)
+                return;
+            $scope.errors = [];
+
+
+            if (!$scope.model.Name)
+                $scope.errors.push("Поле \"Название\" не заполнено!");
+            else if ($scope.model.Name.length < 4)
+                $scope.errors.push("Название короче 4 символов!");
+
+            if ($scope.model.Name.length > 16)
+                $scope.errors.push("Название длиннее 16 символов!");
+            if ($scope.model.Name.Description > 300)
+                $scope.errors.push("Описание длиннее 300 символов!");
+
+            if (!$scope.model.DateOut)
+                $scope.errors.push("Не указана Дата Выхода!");
+
+            if (!imgPicked)
+                $scope.errors.push("Не выбрано изображение!");
+
+            if ($scope.errors.length !== 0)
+                return;
+
+            LoadBarService.Show();
+
+            var cGen = [];
+
+            $scope.chosenGenres.forEach(function (item, i, arr) {
+                cGen.push({
+                    "Id": item
+                });
+            });
+
+            var model = {
+                "Name": $scope.model.Name,
+                "Description": $scope.model.Description,
+                "DateOut": $scope.model.DateOut,
+                "Company.Id": $scope.model.Company.Id,
+                "Price": $scope.model.Price,
+                "Age": $scope.model.Age,
+                "Genres": JSON.stringify(cGen),
+                "Requirements": $scope.model.Requirements
+            }
+
+            $http({
+                url: "Data/Game/Add",
+                method: "Post",
+                params: model,
+                data: imgPicked ? $scope.img : "",
+                headers: {
+                    'Content-Type': "application/x-www-form-urlencoded"
+                }
+            }).then(function (val) {
+                LoadBarService.Hide();
+                $location.path("/Shop");
+            });
+
+
+        };
+    }
+]);
 // services
 app.service("SideMenuService", function () {
     var items = [
-    {
-        name: 'Главная',
-        checked: false,
-        url: "/"
-    },
-    {
-        name: 'Магазин',
-        checked: false,
-        url: "/Shop"
-    },
-    {
-        name: 'Библиотека',
-        checked: false,
-        url: "/Library"
-    },
-    {
-        name: "Корзина",
-        checked: false,
-        url: "/Cart",
-        icon: "glyphicon glyphicon-shopping-cart"
-    },
-    {
-        name: "Separator"
-    },
-    {
-        name: "Жанры",
-        checked: false,
-        url: "/Genres"
-    },
-    {
-        name: "Компании",
-        checked: false,
-        url: "/Companies"
-    },
+        {
+            name: 'Главная',
+            checked: false,
+            url: "/"
+        },
+        {
+            name: 'Магазин',
+            checked: false,
+            url: "/Shop"
+        },
+        {
+            name: 'Библиотека',
+            checked: false,
+            url: "/Library"
+        },
+        {
+            name: "Корзина",
+            checked: false,
+            url: "/Cart",
+            icon: "glyphicon glyphicon-shopping-cart"
+        },
+        {
+            name: "Separator"
+        },
+        {
+            name: "Жанры",
+            checked: false,
+            url: "/Genres"
+        },
+        {
+            name: "Компании",
+            checked: false,
+            url: "/Companies"
+        },
     ];
 
     function Reset() {
@@ -531,7 +906,7 @@ app.service("GenreService", ["$http", "$q",
                     method: "Post",
                 }).then(function (val) {
 
-                    var _data = val.data;
+                    var _data = angular.fromJson(val.data);
                     def.resolve(_data);
                     return val;
 
@@ -548,7 +923,7 @@ app.service("GenreService", ["$http", "$q",
                     method: "Post",
                 }).then(function (val) {
 
-                    var _data = val.data;
+                    var _data = angular.fromJson(val.data);
                     def.resolve(_data);
 
                 });
@@ -584,11 +959,37 @@ app.service("GenreService", ["$http", "$q",
     }
 ]);
 
+app.service("CountryService", ["$http", "$q",
+    function ($http, $q) {
+
+        return {
+
+            GetAll: function () {
+                var def = $q.defer();
+
+                $http({
+                    url: "Data/Country/GetAll",
+                    method: "Post",
+                }).then(function (val) {
+
+                    var _data = angular.fromJson(val.data);
+                    def.resolve(_data);
+                    return val;
+
+                });
+
+                return def.promise;
+            },
+
+        };
+    }
+]);
+
 app.service("CompanyService", ["$http", "$q",
     function ($http, $q) {
 
         return {
-            
+
             GetAll: function () {
                 var def = $q.defer();
 
@@ -597,7 +998,7 @@ app.service("CompanyService", ["$http", "$q",
                     method: "Post",
                 }).then(function (val) {
 
-                    var _data = val.data;
+                    var _data = angular.fromJson(val.data);
                     def.resolve(_data);
                     return val;
 
@@ -614,19 +1015,19 @@ app.service("CompanyService", ["$http", "$q",
                     method: "Post",
                 }).then(function (val) {
 
-                    var _data = val.data;
+                    var _data = angular.fromJson(val.data);
                     def.resolve(_data);
 
                 });
 
                 return def.promise;
             },
-            Delete: function (id) {
+            Delete: function (model) {
                 var def = $q.defer();
 
                 $http({
                     url: "Data/Company/Delete",
-                    data: { id: id },
+                    data: JSON.stringify(model),
                     method: "Post",
                 }).then(function (val) {
 
@@ -642,6 +1043,71 @@ app.service("CompanyService", ["$http", "$q",
 
                 $http({
                     url: "Company/Genre/Edit",
+                    data: JSON.stringify(model),
+                    method: "Post",
+                });
+            }
+        };
+    }
+]);
+
+app.service("GameService", ["$http", "$q",
+    function ($http, $q) {
+
+        return {
+
+            GetAll: function () {
+                var def = $q.defer();
+
+                $http({
+                    url: "Data/Game/GetAll",
+                    method: "Post",
+                }).then(function (val) {
+
+                    var _data = angular.fromJson(val.data);
+                    def.resolve(_data);
+                    return val;
+
+                });
+
+                return def.promise;
+            },
+            Get: function (id) {
+                var def = $q.defer();
+
+                $http({
+                    url: "Data/Game/Get",
+                    data: { id: id },
+                    method: "Post",
+                }).then(function (val) {
+
+                    var _data = angular.fromJson(val.data);
+                    def.resolve(_data);
+
+                });
+
+                return def.promise;
+            },
+            Delete: function (model) {
+                var def = $q.defer();
+
+                $http({
+                    url: "Data/Game/Delete",
+                    data: JSON.stringify(model),
+                    method: "Post",
+                }).then(function (val) {
+
+                    var _data = val.data;
+                    def.resolve(_data);
+
+                });
+
+                return def.promise;
+            },
+            Edit: function (model) {
+
+                $http({
+                    url: "Company/Game/Edit",
                     data: JSON.stringify(model),
                     method: "Post",
                 });
@@ -751,7 +1217,7 @@ app.config([
                 title: 'Редактировать жанр'
             })
 
-             .when("/Companies",
+            .when("/Companies",
             {
                 templateUrl: "html/Company/AllCompanies.html",
                 controller: "CompaniesController",
@@ -765,15 +1231,40 @@ app.config([
             })
             .when("/Company/Delete/:id",
             {
-                templateUrl: "html/Company/DeleteGenre.html",
-                controller: "DeleteGenreController",
-                title: 'Удалить жанр'
+                templateUrl: "html/Company/DeleteCompany.html",
+                controller: "DeleteCompanyController",
+                title: 'Удалить компанию'
             })
             .when("/Company/Edit/:id",
             {
                 templateUrl: "html/Company/EditCompany.html",
-                controller: "EditGenreController",
-                title: 'Редактировать жанр'
+                controller: "EditCompanyController",
+                title: 'Редактировать компанию'
+            })
+
+            .when("/Games",
+            {
+                templateUrl: "html/Company/AllCompanies.html",
+                controller: "CompaniesController",
+                title: 'Компании'
+            })
+            .when("/Game/Add",
+            {
+                templateUrl: "html/Game/AddGame.html",
+                controller: "AddGameController",
+                title: 'Добавить игру'
+            })
+            .when("/Game/Delete/:id",
+            {
+                templateUrl: "html/Company/DeleteCompany.html",
+                controller: "DeleteCompanyController",
+                title: 'Удалить компанию'
+            })
+            .when("/Game/Edit/:id",
+            {
+                templateUrl: "html/Company/EditCompany.html",
+                controller: "EditCompanyController",
+                title: 'Редактировать компанию'
             })
 
             .otherwise({ redirectTo: "/" });
@@ -781,6 +1272,7 @@ app.config([
         $locationProvider.html5Mode(true);
     }
 ]);
+
 app.config(['$qProvider', function ($qProvider) {
     $qProvider.errorOnUnhandledRejections(false);
 }]);

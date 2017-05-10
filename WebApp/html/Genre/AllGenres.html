@@ -10,17 +10,17 @@
 
             <div class="panel" ng-repeat="genre in Genres">
                 <div class="panel-heading">
-                    {{genre.Name}}
-                    <a href="/Genre/Delete/{{genre.Id}}" class="btn btn-default btn-xs pull-right" role="button" style="background: rgb(203, 41, 41)">
+                    {{genre.name}}
+                    <a href="/Genre/Delete/{{genre.id}}" class="btn btn-default btn-xs pull-right" role="button" style="background: rgb(203, 41, 41)">
                         <i class="glyphicon glyphicon-remove"></i>
                     </a>
-                    <a href="/Genre/Edit/{{genre.Id}}" class="btn btn-default btn-xs pull-right" role="button">
+                    <a href="/Genre/Edit/{{genre.id}}" class="btn btn-default btn-xs pull-right" role="button">
                         <i class="glyphicon glyphicon-cog"></i>
                     </a>
                 </div>
                 <hr style="margin: 0"/>
                 <div class="panel-body">
-                    {{genre.Description}}
+                    {{genre.genreDescription}}
                 </div>
             </div>
 
