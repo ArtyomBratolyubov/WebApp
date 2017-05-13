@@ -1,0 +1,104 @@
+﻿<div class="col-md-9">
+    <div class="reveal-animation">
+
+        <div class="row">
+            <div class="col-md-9">
+                <uib-accordion close-others="oneAtATime">
+                    <div uib-accordion-group class="panel-default" is-open="status.isCustomHeaderOpen">
+
+                        <uib-accordion-heading class="my-accordion-heading">
+                            <div style="width: 100%">
+                                <span>
+                                    Фильтр
+                                </span>
+
+                                <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status.isCustomHeaderOpen, 'glyphicon-chevron-right': !status.isCustomHeaderOpen}"></i>
+                            </div>
+
+                        </uib-accordion-heading>
+
+                        <div>
+                            <input type="text" class="form form-filter" placeholder="Название..." ng-model="filter.Name" />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 col-xs-12 col-sm-12">
+                                Рейтинг от:
+                                <input type="number" class="form form-filter form-filter-number" min="0" max="5" value="0" ng-model="filter.RateFrom" />
+                                до:
+                                <input type="number" class="form form-filter form-filter-number" min="0" max="5" value="5" ng-model="filter.RateTo" />
+                            </div>
+                            <div class="col-md-6 col-xs-12 col-sm-12">
+                                Цена от:
+                                <input type="number" class="form form-filter form-filter-number" min="0"  value="0" ng-model="filter.PriceFrom" />
+                                до:
+                                <input type="number" class="form form-filter form-filter-number" min="0"   ng-model="filter.PriceTo" />
+                                $
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 col-xs-12 col-sm-12">
+                                Возрастное ограничение от:
+                                <input type="number" class="form form-filter form-filter-number" min="0" max="21" value="0" ng-model="filter.AgeFrom" />
+                                до:
+                                <input type="number" class="form form-filter form-filter-number" min="0" max="21" value="5" ng-model="filter.AgeTo" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 col-xs-12 col-sm-12">
+                                <span>Жанры</span>
+                                <div class="well form" style="max-height: 200px; overflow: auto;">
+                                    <ul class="list-group checked-list-box">
+                                        <li class="list-group-item" ng-repeat="genre in Genres">
+                                            <input type="checkbox" checklist-model="filter.Genres" checklist-value="genre.id">
+                                            {{genre.name}}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 col-sm-12">
+                                <span>Студии</span>
+                                <div class="well form" style="max-height: 200px; overflow: auto;">
+                                    <ul class="list-group checked-list-box">
+                                        <li class="list-group-item" ng-repeat="company in Companies">
+                                            <input type="checkbox" checklist-model="filter.Companies" checklist-value="company.id">
+                                            {{company.companyName}}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px">
+                            <button class="btn btn-primary pull-right" ng-click="DoFilter()">
+                                Применить
+                            </button>
+                            <button class="btn btn-warning" ng-click="ResetFilter()">
+                                Сбросить
+                            </button>
+                        </div>
+
+                    </div>
+                </uib-accordion>
+            </div>
+
+            <div class="btn-group" uib-dropdown is-open="status.isopen">
+                <button id="single-button" type="button" class="btn btn-info" uib-dropdown-toggle ng-disabled="disabled">
+                    {{SortName}} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+                    <li ng-repeat="sort in Sortings" role="menuitem"><a href="#" ng-click="sort.Sort()">{{sort.Name}}</a></li>
+                </ul>
+
+                <button type="button" class="btn btn-info" style="margin-left: 15px;" ng-click="RevSort()">
+                    <span class="glyphicon glyphicon-sort"></span>
+                </button>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div ng-repeat="game in GamesToShow">
+                <div game-tile></div>
+            </div>
+        </div>
+    </div>
+</div>

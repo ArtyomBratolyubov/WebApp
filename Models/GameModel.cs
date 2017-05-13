@@ -7,10 +7,6 @@ namespace Models
 {
     public class GameModel
     {
-        public GameModel()
-        {
-
-        }
 
         public int? Id { get; set; }
 
@@ -22,13 +18,17 @@ namespace Models
 
         public CompanyModel Company { get; set; }
 
-        public GenreModel[] Genres { get; set; }
+        public List<GenreModel> Genres { get; set; }
+
+        public List<int> GenreIds { get; set; }
 
         public string Requirements { get; set; }
 
         public int? Age { get; set; }
 
         public int? Price { get; set; }
+
+        public int? Rating { get; set; }
 
         public DateTime? DateOut { get; set; }
 
@@ -40,12 +40,12 @@ namespace Models
             json.description = Description;
             json.systemRequirements = Requirements;
             json.price = Price;
-            json.releaseDate = DateOut;
+            json.releaseDate = DateOut.Value.ToString("yyyy-MM-dd");
             json.poster = ImageUrl;
             json.restrictions = Age;
             json.company = new JObject();
             json.company.id = Company.Id;
-
+            json.rating = Rating ?? 0;
 
             return json;
         }

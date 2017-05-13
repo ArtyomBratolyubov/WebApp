@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommentModel.cs" />
+    <Compile Include="RatingModel.cs" />
     <Compile Include="GameModel.cs" />
     <Compile Include="CountryModel.cs" />
     <Compile Include="CompanyModel.cs" />

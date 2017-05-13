@@ -6,7 +6,7 @@
 
             <input type="text" name="name" id="name" class="form" placeholder="Название..." ng-model="model.Name" />
             <span class="text-muted" style="color: gainsboro">
-                Компания
+                Студия
             </span>
             <select class="form" ng-model="model.Company.Id" ng-options="template.id as template.companyName for template in Companies"></select>
 
@@ -14,8 +14,14 @@
             <span class="text-muted" style="color: gainsboro">
                 Жанры
             </span>
-            <select class="form" multiple ng-model="chosenGenres" ng-options="template.id as template.name for template in Genres"></select>
-
+            <!--<select class="form" multiple ng-model="chosenGenres" ng-options="template.id as template.name for template in Genres"></select>-->
+            <div class="well form" style="max-height: 200px; overflow: auto;">
+                <ul class="list-group checked-list-box">
+                    <li class="list-group-item" ng-repeat="genre in Genres">
+                        <input type="checkbox" checklist-model="chosenGenres" checklist-value="genre.id"> {{genre.name}}
+                    </li>
+                </ul>
+            </div>
 
             <span class="text-muted" style="color: gainsboro">
                 Возрастное ограничение:

@@ -1,0 +1,23 @@
+﻿
+<div class="col-md-3 col-xs-12 col-sm-5 reveal-animation imgBox" style="padding: 0px">
+    <a href="/Game/{{game.id}}">
+        <div style="background-image: url({{game.poster}}); " class="imgBgCentered"></div>
+    </a>
+    <div style="padding: 5px">
+        <div class="caption" style="height: 50px;">
+            <h5>
+                <span class="pull-right">${{game.price}}</span>
+                <a href="/Game/{{game.id}}">{{game.title}}</a>
+            </h5>
+            <!--<p>{{game.description}}</p>-->
+        </div>
+        <div class="ratings">
+            <p class="pull-right">15 reviews</p>
+            <p>
+                <span class="glyphicon glyphicon-star" ng-repeat="n in [] | range:game.rating.toFixed()"></span>
+                <span class="glyphicon glyphicon-star-empty" ng-repeat="n in [] | range:5-game.rating.toFixed()"></span>
+                <span style="font-size: 10px">({{game.rating.toFixed(1)}})</span>
+            </p>
+        </div>
+    </div>
+</div>

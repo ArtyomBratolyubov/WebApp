@@ -10,9 +10,11 @@ namespace DAO.Services
 
         public string All => HttpActions.Get(ServiceURL.GenreGetAll);
 
-        public void Add(GenreModel model)
+        public string Add(GenreModel model)
         {
             string resp = HttpActions.Post(ServiceURL.GenreAdd, model.ToJObject().ToString());
+
+            return resp;
         }
 
 
@@ -26,9 +28,11 @@ namespace DAO.Services
             return HttpActions.Get(ServiceURL.GenreGet + '/' + id);
         }
 
-        public void Edit(GenreModel model)
+        public string Edit(GenreModel model)
         {
             string resp = HttpActions.Post(ServiceURL.GenreEdit, model.ToJObject().ToString());
+
+            return resp;
         }
     }
 }

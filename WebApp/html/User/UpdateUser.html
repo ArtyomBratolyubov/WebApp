@@ -1,0 +1,26 @@
+﻿<div class="col-md-offset-2 col-md-4">
+    <div class="reveal-animation">
+        <div class="">
+            <input type="text" name="name" id="name" class="form" placeholder="Новый логин..." ng-model="Login" />
+            <input type="password" name="name" id="name" class="form" placeholder="Новый ароль..." ng-model="Password" />
+            <input type="password" name="name" id="name" class="form" placeholder="Повторите пароль..." ng-model="SecPassword" />
+            <hr />
+            <input type="password" name="name" id="name" class="form" placeholder="Старый ароль..." ng-model="OldPassword" />
+            <span class="text-muted" style="color: gainsboro">
+                Страна
+            </span>
+            <select class="form" ng-model="Country" ng-options="template.id as template.countryName for template in Countries"></select>
+            <br/>
+            <span class="text-muted" style="color: gainsboro">
+                Подсказка: пустые поля не будут изменены
+            </span>
+        </div>
+        <div class="">
+            <button type="submit" id="submit" name="submit" class="form-btn" ng-click="registrate()">Изменить</button>
+        </div>
+        <div ng-repeat="error in errors track by error" style="color: red" class="reveal-animation">{{error}}</div>
+    </div>
+</div>
+
+
+

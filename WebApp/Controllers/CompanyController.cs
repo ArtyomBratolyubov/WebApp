@@ -17,7 +17,7 @@ namespace WebApp.Controllers
         private CompanyService service = new CompanyService();
 
         [HttpPost]
-        public void Add(CompanyModel model)
+        public string Add(CompanyModel model)
         {
 
             string base64 = Request.Form.ToString();
@@ -33,12 +33,12 @@ namespace WebApp.Controllers
                 model.ImageUrl = "/Content/Images/Technical/noimagefound.jpg";
             }
 
-            service.Add(model);
+            return service.Add(model);
 
         }
 
         [HttpPost]
-        public void Edit(CompanyModel model)
+        public string Edit(CompanyModel model)
         {
             string base64 = Request.Form.ToString();
 
@@ -50,7 +50,7 @@ namespace WebApp.Controllers
                 model.ImageUrl = "/Content/Images/All/" + ImagesHelper.SaveImage(base64, path);
             }
 
-            service.Edit(model);
+            return service.Edit(model);
         }
 
         [HttpPost]

@@ -1,14 +1,17 @@
 ﻿<div class="col-md-9">
     <div class="reveal-animation">
         <div class="row">
-            <span class="pageHeader">Жанры</span>
+            <span class="pageHeader">
+                Жанры
+                <input type="text"  class="filterInput" placeholder="Фильтр..." ng-model="filter" ng-change="DoFilter()" />
+            </span>
             <a href="/Genre/Add" class="btn btn-default pull-right">Добавить</a>
             <hr />
         </div>
         <div class="row">
 
 
-            <div class="panel" ng-repeat="genre in Genres">
+            <div class="panel" ng-repeat="genre in GenresToShow">
                 <div class="panel-heading">
                     {{genre.name}}
                     <a href="/Genre/Delete/{{genre.id}}" class="btn btn-default btn-xs pull-right" role="button" style="background: rgb(203, 41, 41)">
@@ -18,13 +21,13 @@
                         <i class="glyphicon glyphicon-cog"></i>
                     </a>
                 </div>
-                <hr style="margin: 0"/>
+                <hr style="margin: 0" />
                 <div class="panel-body">
                     {{genre.genreDescription}}
                 </div>
             </div>
 
-          
+
         </div>
     </div>
 </div>

@@ -1,34 +1,7 @@
-﻿var app = angular.module("main", ["ngRoute", "ui.bootstrap", "ngAnimate", "ngTouch"]);
+﻿var app = angular.module("main", ["ngRoute", "ui.bootstrap", "ngAnimate", "ngTouch", "checklist-model"]);
 
 // controllers
-app.controller('CarouselController', function ($scope) {
-    $scope.myInterval = 5000;
-    $scope.noWrapSlides = false;
-    $scope.active = 0;
-    var slides = $scope.slides = [];
-    var currIndex = 0;
-
-    function initSlides() {
-        //get logics
-
-        slides.push({
-            image: 'https://i.ytimg.com/vi/ub9JUDS_6i8/maxresdefault.jpg',
-            text: ['Nice image', 'Awesome photograph', 'That is so cool', 'I love that'][slides.length % 4],
-            id: currIndex++
-        });
-
-        slides.push({
-            image: 'http://media-www-battlefieldwebcore.spark.ea.com/content/battlefield-portal/ru_RU/_global_/_jcr_content/ccm/componentwrapper_3/components/opengraph/ogImage.img.jpg',
-            text: ['Nice image', 'Awesome photograph', 'That is so cool', 'I love that'][slides.length % 4],
-            id: currIndex++
-        });
-    }
-
-    initSlides();
-
-});
-
-app.controller('SideMenuController', function ($scope, SideMenuService) {
+app.controller("SideMenuController", function ($scope, SideMenuService) {
 
     $scope.Items = SideMenuService.Get();
 });
@@ -49,13 +22,330 @@ app.controller("NavBarController", [
             $location.path("/");
         }
 
+        $scope.SearchText = "";
 
+        $scope.Search = function () {
+            if ($scope.SearchText)
+                $location.path("/Search/" + $scope.SearchText);
+        }
     }
 ]);
 
 
 app.controller("IndexController", [
-    "$scope", "$http", "SideMenuService", function ($scope, $http, SideMenuService) {
+         "$scope", "$http", "GameService", "LoadBarService",
+    function ($scope, $http, GameService, LoadBarService) {
+        LoadBarService.Show();
+        $scope.myInterval = 5000;
+        $scope.noWrapSlides = false;
+        $scope.active = 0;
+        var slides = $scope.slides = [];
+
+        var prom = GameService.GetAll();
+        $scope.Games = [];
+        prom.then(function (value) {
+            $scope.Games = value;
+
+            initSlides();
+            initRatedGames();
+            initCommnetedGamess();
+
+            LoadBarService.Hide();
+        });
+
+        function initSlides() {
+            for (var i = $scope.Games.length - 1, j = 0; i >= 0 ; i--, j++) {
+
+                if (j > 4)
+                    break;
+
+                var ob = $scope.Games[i];
+                ob.num = j;
+                slides.push(ob);
+            }
+        }
+
+        $scope.RatedGames = [];
+
+        function initRatedGames() {
+            $scope.RatedGames = $scope.Games;
+        }
+
+        $scope.CommnetedGames = [];
+
+        function initCommnetedGamess() {
+            $scope.CommnetedGames = $scope.Games;
+        }
+    }
+]);
+
+app.controller("ShopController", [
+         "$scope", "$http", "GameService", "LoadBarService", "GenreService", "CompanyService",
+    function ($scope, $http, GameService, LoadBarService, GenreService, CompanyService) {
+        var load = [1, 1, 1];
+
+        $scope.SortName = "";
+
+        $scope.Sortings = [
+            {
+                Name: "По названию",
+                Sort: function () {
+                    if ($scope.GamesToShow) {
+                        $scope.GamesToShow.sort(function (a, b) {
+                            return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+                        });
+                    }
+                    $scope.SortName = this.Name;
+                }
+            },
+            {
+                Name: "По рейтингу",
+                Sort: function () {
+                    if ($scope.GamesToShow) {
+                        $scope.GamesToShow.sort(function (a, b) {
+                            return b.rating - a.rating;
+                        });
+                    }
+                    $scope.SortName = this.Name;
+                }
+            },
+            {
+                Name: "По покупкам",
+                Sort: function () {
+                    if ($scope.GamesToShow) {
+                        $scope.GamesToShow.sort(function (a, b) {
+                            if (!a.orders)
+                                a.orders = [];
+                            if (!b.orders)
+                                b.orders = [];
+                            return a.orders.length - b.orders.length;
+                        });
+                    }
+                    $scope.SortName = this.Name;
+                }
+            },
+            {
+                Name: "По цене",
+                Sort: function () {
+                    if ($scope.GamesToShow) {
+                        $scope.GamesToShow.sort(function (a, b) {
+                            return b.price - a.price;
+                        });
+                    }
+                    $scope.SortName = this.Name;
+                }
+            },
+            {
+                Name: "По дате выхода",
+                Sort: function () {
+                    if ($scope.GamesToShow) {
+                        $scope.GamesToShow.sort(function (a, b) {
+                            return new Date(b.releaseDate) - new Date(a.releaseDate);
+                        });
+                    }
+                    $scope.SortName = this.Name;
+                }
+            }
+        ];
+
+        function popLoad() {
+
+            load.pop();
+
+            if (load.length === 0) {
+                try {
+                    LoadBarService.Hide();
+
+                    $scope.ResetFilter();
+
+                    $scope.Sortings[0].Sort();
+                } catch (ex) {
+                    alert(ex);
+                }
+            }
+
+        }
+        LoadBarService.Show();
+
+        var promGames = GameService.GetAll();
+        $scope.Games = [];
+        promGames.then(function (value) {
+            $scope.Games = value;
+
+            popLoad();
+        });
+
+        var promGenres = GenreService.GetAll();
+        $scope.Genres = [];
+        promGenres.then(function (value) {
+            $scope.Genres = value.sort(function (a, b) {
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            });
+
+            popLoad();
+        });
+
+        var promCompanies = CompanyService.GetAll();
+        $scope.Companies = [];
+        promCompanies.then(function (value) {
+            $scope.Companies = value.sort(function (a, b) {
+                return a.companyName.toLowerCase().localeCompare(b.companyName.toLowerCase());
+            });
+
+            popLoad();
+        });
+
+
+        $scope.status = {
+            isCustomHeaderOpen: false
+        };
+
+        $scope.GamesToShow = [];
+
+
+
+        $scope.filterBackup = {
+            RateFrom: 0,
+            RateTo: 5,
+            PriceFrom: 0,
+            PriceTo: "",
+            Name: "",
+            AgeFrom: 0,
+            AgeTo: 21,
+        }
+
+        $scope.filter = {};
+
+        $scope.DoFilter = function () {
+            if (LoadBarService.Get().show)
+                return;
+
+            $scope.GamesToShow = $scope.Games;
+            var filter = $scope.filter;
+
+            // name
+            if (filter.Name) {
+                $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
+                    return val.title.toLowerCase().includes(filter.Name.toLowerCase());
+                });
+            }
+
+            // rating
+            if (filter.RateFrom) {
+                $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
+                    return val.rating >= filter.RateFrom;
+                });
+            }
+
+            if (filter.RateTo) {
+                $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
+                    return val.rating <= filter.RateTo;
+                });
+            }
+
+            // age
+            if (filter.AgeFrom) {
+                $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
+                    return val.restrictions >= filter.AgeFrom;
+                });
+            }
+
+            if (filter.AgeTo) {
+                $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
+                    return val.restrictions <= filter.AgeTo;
+                });
+            }
+
+            // price
+            if (filter.PriceFrom) {
+                $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
+                    return val.price >= filter.PriceFrom;
+                });
+            }
+
+            if (filter.PriceTo) {
+                $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
+                    return val.price <= filter.PriceTo;
+                });
+            }
+
+            // companies
+            if (filter.Companies) {
+                if (filter.Companies.length > 0) {
+                    $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
+                        return filter.Companies.includes(val.company.id);
+                    });
+                }
+            }
+
+            // Genres
+            if (filter.Genres) {
+                if (filter.Genres.length > 0) {
+                    $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
+                        var temp = [];
+
+                        val.genres.forEach(function (item, i, arr) {
+
+                            if (filter.Genres.includes(item.id)) {
+                                temp.push(1);
+                            }
+
+                        });
+                        if (temp.length === filter.Genres.length)
+                            return true;
+
+                        return false;
+                    });
+                }
+            }
+        }
+
+        $scope.ResetFilter = function () {
+            $scope.filter = {
+                RateFrom: $scope.filterBackup.RateFrom,
+                RateTo: $scope.filterBackup.RateTo,
+                AgeFrom: $scope.filterBackup.AgeFrom,
+                AgeTo: $scope.filterBackup.AgeTo,
+                PriceFrom: $scope.filterBackup.PriceFrom,
+                PriceTo: $scope.filterBackup.PriceTo,
+                Name: $scope.filterBackup.Name,
+                Genres: $scope.filterBackup.Genres,
+            }
+            $scope.DoFilter();
+        }
+
+
+        $scope.RevSort = function () {
+            $scope.GamesToShow = $scope.GamesToShow.reverse();
+        }
+    }
+]);
+
+app.controller("SearchController", [
+    "$scope", "$http", "GameService", "LoadBarService", "$routeParams",
+    function ($scope, $http, GameService, LoadBarService, $routeParams) {
+        LoadBarService.Show();
+        var prom = GameService.GetAll();
+
+        prom.then(function (value) {
+            $scope.Games = value.sort(function (a, b) {
+                return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+            });
+            try {
+                $scope.Games = $scope.Games.filter(function (val) {
+                    return val.title.toLowerCase().includes($routeParams.str.toLowerCase());
+                });
+
+
+
+                LoadBarService.Hide();
+            } catch (ex) {
+                alert(ex);
+            }
+        });
+
+        $scope.Games = [];
+
 
     }
 ]);
@@ -84,15 +374,34 @@ app.controller("LoginController", [
                 if (val === true)
                     $location.path("/");
                 else
-                    $scope.errors = ["Wrong login or password!"];
+                    $scope.errors = ["Не верный догин и/или пароль!"];
             });
         };
     }
 ]);
-
 app.controller("RegistrationController", [
-    "$scope", "UserService", "$location", function ($scope, UserService, $location) {
+    "$scope", "UserService", "$location", "CountryService", "LoadBarService",
+    function ($scope, UserService, $location, CountryService, LoadBarService) {
+        LoadBarService.Show();
+        var prom = CountryService.GetAll();
 
+        prom.then(function (value) {
+            $scope.Countries = value;
+
+            if ($scope.Countries.length === 0) {
+                $scope.Countries = [{
+                    id: -1,
+                    Name: "Стран не найдено"
+                }];
+            }
+
+            $scope.Country = $scope.Countries[0].id;
+            LoadBarService.Hide();
+        });
+
+        $scope.Country = {};
+
+        $scope.Countries = {};
 
         $scope.Login = "";
 
@@ -121,21 +430,109 @@ app.controller("RegistrationController", [
                 $scope.errors.push("Пароль длиннее 16 символов!");
 
 
-
-
             if ($scope.Password !== $scope.SecPassword)
                 $scope.errors.push("Пароли не совпадают");
 
             if ($scope.errors.length !== 0)
                 return;
 
-            UserService.Registrate($scope.Login, $scope.Password).then(function (val) {
+            UserService.Registrate($scope.Login, $scope.Password, $scope.Country).then(function (val) {
                 if (val === true)
-                    $location.path("/Home/Login");
+                    $location.path("/Login");
                 else
-                    $scope.errors = ["Login is already in use!"];
+                    $scope.errors = ["Логин уже используется!"];
             });
 
+        };
+    }
+]);
+app.controller("UpdateUserController", [
+    "$scope", "UserService", "$location", "CountryService", "LoadBarService", "$http",
+    function ($scope, UserService, $location, CountryService, LoadBarService, $http) {
+        LoadBarService.Show();
+        var prom = CountryService.GetAll();
+
+        $scope.user = UserService.GetUser();
+        if (!UserService.IsLogedIn())
+            $location.path("/");
+
+
+        prom.then(function (value) {
+            $scope.Countries = value;
+
+            if ($scope.Countries.length === 0) {
+                $scope.Countries = [{
+                    id: -1,
+                    Name: "Стран не найдено"
+                }];
+            }
+
+            $scope.Country = $scope.user.data.country.id;
+            LoadBarService.Hide();
+        });
+
+        $scope.Country = {};
+
+        $scope.Countries = {};
+
+        $scope.Login = "";
+
+        $scope.Password = "";
+
+        $scope.SecPassword = "";
+
+        $scope.OldPassword = "";
+
+        $scope.errors = [];
+
+        $scope.registrate = function () {
+            $scope.errors = [];
+            if ($scope.Login)
+                if ($scope.Login.length < 4)
+                    $scope.errors.push("Логин короче 4 символов!");
+
+            if ($scope.Password)
+                if ($scope.Password.length < 4)
+                    $scope.errors.push("Пароль короче 4 символов!");
+
+
+            if ($scope.Login.length > 16)
+                $scope.errors.push("Логин длиннее 16 символов!");
+            if ($scope.Password.length > 16)
+                $scope.errors.push("Пароль длиннее 16 символов!");
+
+
+            if ($scope.Password !== $scope.SecPassword)
+                $scope.errors.push("Пароли не совпадают");
+
+            if ($scope.user.data.password !== $scope.OldPassword)
+                $scope.errors.push("Не верный старый пароль!");
+
+            if ($scope.errors.length !== 0)
+                return;
+
+            var user = {
+                "Id": $scope.user.data.id,
+                "RoleId": $scope.user.data.role,
+                "Login": $scope.Login ? $scope.Login : $scope.user.data.login,
+                "Password": $scope.Password ? $scope.Password : $scope.user.data.password,
+                "Country.Id": $scope.Country
+            };
+            $http({
+                url: "Data/User/Update",
+                method: "POST",
+                data: JSON.stringify(user)
+            }).then(function (val) {
+
+                if (val.data === "409" || val.data === "404") {
+                    $scope.errors = ["Логин уже используется!"];
+                    return;
+                }
+
+                UserService.LogOff();
+                $location.path("/Login");
+
+            });
         };
     }
 ]);
@@ -147,13 +544,25 @@ app.controller("GenresController", [
         var prom = GenreService.GetAll();
 
         prom.then(function (value) {
-            $scope.Genres = value.sort(function (a, b) {
-                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-            });
+            if (value.length)
+                $scope.Genres = value.sort(function (a, b) {
+                    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+                });
+            $scope.DoFilter();
             LoadBarService.Hide();
         });
 
         $scope.Genres = [];
+
+        $scope.GenresToShow = [];
+
+        $scope.filter = "";
+
+        $scope.DoFilter = function () {
+            $scope.GenresToShow = $scope.Genres.filter(function (val) {
+                return val.name.toLowerCase().includes($scope.filter.toLowerCase());
+            });
+        }
     }
 ]);
 app.controller("AddGenreController", [
@@ -180,9 +589,20 @@ app.controller("AddGenreController", [
             if ($scope.errors.length !== 0)
                 return;
 
-            GenreService.Add($scope.Name, $scope.Desc);
+            GenreService.Add($scope.Name, $scope.Desc, function (val) {
+                if (val.data === "409") {
+                    $scope.errors.push("Название уже занято!");
+                    return;
+                }
+                if (val.data === "404") {
+                    $scope.errors.push("Название уже занято!");
+                    return;
+                }
 
-            $location.path("/Genres");
+                $location.path("/Genres");
+            });
+
+
         };
     }
 ]);
@@ -198,6 +618,10 @@ app.controller("DeleteGenreController", [
         prom.then(function (value) {
             $scope.genre = value;
             LoadBarService.Hide();
+
+            if (!$scope.genre.id) {
+                $location.path("/Genres");
+            }
         });
 
         $scope.genre = {};
@@ -226,6 +650,10 @@ app.controller("EditGenreController", [
         prom.then(function (value) {
             $scope.genre = value;
             LoadBarService.Hide();
+
+            if (!$scope.genre.id) {
+                $location.path("/Genres");
+            }
         });
 
         $scope.errors = [];
@@ -243,8 +671,22 @@ app.controller("EditGenreController", [
                 Id: $scope.genre.id,
                 Name: $scope.genre.name,
                 Description: $scope.genre.genreDescription
-            });
-            $location.path("/Genres");
+            },
+            function (val) {
+                if (val.data === "409") {
+                    $scope.errors.push("Название уже занято!");
+                    return;
+                }
+                if (val.data === "404") {
+                    $scope.errors.push("Название уже занято!");
+                    return;
+                }
+
+                $location.path("/Genres");
+
+
+            }
+            );
         }
     }
 ]);
@@ -260,10 +702,22 @@ app.controller("CompaniesController", [
                 $scope.Companies = value.sort(function (a, b) {
                     return a.companyName.toLowerCase().localeCompare(b.companyName.toLowerCase());
                 });
+
+            $scope.DoFilter();
             LoadBarService.Hide();
         });
 
         $scope.Companies = [];
+
+        $scope.CompaniesToShow = [];
+
+        $scope.filter = "";
+
+        $scope.DoFilter = function () {
+            $scope.CompaniesToShow = $scope.Companies.filter(function (val) {
+                return val.companyName.toLowerCase().includes($scope.filter.toLowerCase());
+            });
+        }
     }
 ]);
 app.controller("AddCompanyController", [
@@ -366,6 +820,11 @@ app.controller("AddCompanyController", [
                 }
             }).then(function (val) {
                 LoadBarService.Hide();
+                if (val.data === "409") {
+                    $scope.errors.push("Название уже занято!");
+                    return;
+                }
+
                 $location.path("/Companies");
             });
 
@@ -529,6 +988,15 @@ app.controller("EditCompanyController", [
                 }
             }).then(function (val) {
                 LoadBarService.Hide();
+                if (val.data === "409") {
+                    $scope.errors.push("Название уже занято!");
+                    return;
+                }
+                if (val.data === "404") {
+                    $scope.errors.push("Название уже занято!");
+                    return;
+                }
+
                 $location.path("/Companies");
             });
 
@@ -538,6 +1006,127 @@ app.controller("EditCompanyController", [
 ]);
 
 
+app.controller("GameController", [
+    "$scope", "$http", "GameService", "LoadBarService", "$routeParams", "UserService", "$location",
+    function ($scope, $http, GameService, LoadBarService, $routeParams, UserService, $location) {
+        if (!$routeParams.id || $routeParams.id < 1) {
+            $location.path("/Shop");
+        }
+
+        LoadBarService.Show();
+
+        $scope.User = UserService.GetUser();
+        $scope.isAuthenticated = UserService.IsLogedIn();
+
+        function updateGame() {
+            var prom = GameService.Get($routeParams.id);
+            prom.then(function (value) {
+                $scope.Game = value;
+
+                if (!$scope.Game.id) {
+                    $location.path("/Shop");
+                }
+
+                $scope.Game.releaseDate = Date.parse($scope.Game.releaseDate);
+
+                document.title = value.title;
+                UpdateComments();
+
+                LoadBarService.Hide();
+
+
+            });
+        }
+
+        function UpdateComments() {
+            $http({
+                url: "Data/Comment/GetAllById",
+                method: "Post",
+                data: { id: $scope.Game.id },
+            }).then(function (val) {
+
+                var _data = angular.fromJson(val.data);
+
+                _data.forEach(function (item, i, arr) {
+                    item.time = Date.parse(item.time);
+                });
+
+                $scope.Game.comments = _data.sort(function (a, b) {
+                    return b.id - a.id;
+                });
+
+            });
+        }
+
+        updateGame();
+        $scope.Game = {};
+
+        $scope.SetRating = function (n, v) {
+            if (!$scope.isAuthenticated.Value) {
+                $location.path("/Login");
+                return;
+            }
+            n = n + 1;
+            var res = {};
+
+            if (v === 0) {
+                res = n;
+            } else {
+                var r = $scope.Game.rating.toFixed();
+
+                res = n + parseInt(r);
+            }
+
+
+            $http({
+                url: "Data/Rating/Set",
+                method: "Post",
+                data: JSON.stringify({
+                    "Value": res,
+                    "GameId": $scope.Game.id,
+                    "UserId": $scope.User.data.id
+                })
+            }).then(function () {
+                updateGame();
+            });
+        }
+
+        $scope.Comment = "";
+        $scope.AddComment = function () {
+            if (!$scope.Comment)
+                return;
+
+            if (!$scope.isAuthenticated.Value) {
+                $location.path("/Login");
+                return;
+            }
+
+            $http({
+                url: "Data/Comment/Add",
+                method: "Post",
+                data: JSON.stringify({
+                    "Value": $scope.Comment,
+                    "GameId": $scope.Game.id,
+                    "UserId": $scope.User.data.id
+                })
+            }).then(function () {
+                UpdateComments();
+                $scope.Comment = "";
+            });
+        }
+        $scope.DeleteComment = function (id) {
+
+            $http({
+                url: "Data/Comment/Delete",
+                method: "Post",
+                data: { "id": id }
+            }).then(function () {
+                UpdateComments();
+            });
+        }
+
+    }
+]);
 app.controller("AddGameController", [
     "$scope", "$http", "$location", "LoadBarService", "GameService", "CompanyService", "GenreService",
     function ($scope, $http, $location, LoadBarService, GameService, CompanyService, GenreService) {
@@ -569,7 +1158,7 @@ app.controller("AddGameController", [
             if ($scope.Companies.length === 0) {
                 $scope.Companies = [{
                     id: -1,
-                    Name: "Компаний не найдено"
+                    Name: "Студий не найдено"
                 }];
             }
 
@@ -651,9 +1240,9 @@ app.controller("AddGameController", [
             else if ($scope.model.Name.length < 4)
                 $scope.errors.push("Название короче 4 символов!");
 
-            if ($scope.model.Name.length > 16)
-                $scope.errors.push("Название длиннее 16 символов!");
-            if ($scope.model.Name.Description > 300)
+            if ($scope.model.Name.length > 30)
+                $scope.errors.push("Название длиннее 30 символов!");
+            if ($scope.model.Description > 300)
                 $scope.errors.push("Описание длиннее 300 символов!");
 
             if (!$scope.model.DateOut)
@@ -682,7 +1271,7 @@ app.controller("AddGameController", [
                 "Company.Id": $scope.model.Company.Id,
                 "Price": $scope.model.Price,
                 "Age": $scope.model.Age,
-                "Genres": JSON.stringify(cGen),
+                "GenreIds": $scope.chosenGenres,
                 "Requirements": $scope.model.Requirements
             }
 
@@ -703,42 +1292,214 @@ app.controller("AddGameController", [
         };
     }
 ]);
+app.controller("EditGameController", [
+    "$scope", "$http", "$location", "LoadBarService", "GameService", "CompanyService", "GenreService", "$routeParams",
+    function ($scope, $http, $location, LoadBarService, GameService, CompanyService, GenreService, $routeParams) {
+        $scope.model = {};
+
+        LoadBarService.Show();
+        var load = [1, 1, 1];
+
+        var promCompanies = CompanyService.GetAll();
+        promCompanies.then(function (value) {
+            $scope.Companies = value.sort(function (a, b) {
+                return a.companyName.toLowerCase().localeCompare(b.companyName.toLowerCase());
+            });
+
+            if ($scope.Companies.length === 0) {
+                $scope.Companies = [{
+                    id: -1,
+                    Name: "Студий не найдено"
+                }];
+            }
+
+            popLoad();
+        });
+
+        var promGenres = GenreService.GetAll();
+        promGenres.then(function (value) {
+            $scope.Genres = value.sort(function (a, b) {
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            });
+
+            if ($scope.Genres.length === 0) {
+                $scope.Genres = [{
+                    id: -1,
+                    Name: "Жанров не найдено"
+                }];
+            }
+
+            popLoad();
+        });
+
+        var promGame = GameService.Get($routeParams.id);
+        promGame.then(function (value) {
+            $scope.model = value;
+
+            if (!$scope.model.id) {
+                $location.path("/Shop");
+            }
+
+            $scope.img = $scope.model.poster;
+            $scope.chosenGenres = $scope.model.genres.map(function (a) { return a.id; });;
+            $scope.model.restrictions = Number($scope.model.restrictions);
+            $scope.model.releaseDate = new Date($scope.model.releaseDate);
+            popLoad();
+        });
+
+        function popLoad() {
+            load.pop();
+
+            if (load.length === 0)
+                LoadBarService.Hide();
+        }
+
+        var imgPicked = false;
+
+        $scope.imageUpload = function (event) {
+            var files = event.target.files;
+
+            for (var i = 0; i < files.length; i++) {
+
+                var file = files[i];
+
+                $scope.file = file.name;
+                var reader = new FileReader();
+                reader.onload = $scope.imageIsLoaded;
+                reader.readAsDataURL(file);
+            }
+        };
+        $scope.imageIsLoaded = function (e) {
+            $scope.$apply(function () {
+                $scope.img = e.target.result;
+                imgPicked = true;
+            });
+        };
+        $scope.ResetImage = function () {
+            $scope.img = $scope.model.poster;
+            var imgPicked = false;
+            $scope.file = "";
+        }
+
+        $scope.img = "/Content/Images/Technical/noimagefound.jpg";
+
+        $scope.file = "";
+
+        $scope.Companies = {};
+
+        $scope.chosenGenres = [];
+
+        $scope.Genres = [];
+
+        $scope.errors = [];
+
+
+        $scope.EditGame = function () {
+            if (LoadBarService.Get().show)
+                return;
+            $scope.errors = [];
+
+
+            if (!$scope.model.title)
+                $scope.errors.push("Поле \"Название\" не заполнено!");
+            else if ($scope.model.title.length < 4)
+                $scope.errors.push("Название короче 4 символов!");
+
+            if ($scope.model.title.length > 30)
+                $scope.errors.push("Название длиннее 30 символов!");
+            if ($scope.model.description.length > 300)
+                $scope.errors.push("Описание длиннее 300 символов!");
+
+            if ($scope.model.systemRequirements.length > 300)
+                $scope.errors.push("Системные требования длиннее 300 символов!");
+
+            if (!$scope.model.releaseDate)
+                $scope.errors.push("Не указана Дата Выхода!");
+
+            if ($scope.errors.length !== 0)
+                return;
+
+            LoadBarService.Show();
+
+            var model = {
+                "Id": $scope.model.id,
+                "Name": $scope.model.title,
+                "Description": $scope.model.description,
+                "DateOut": $scope.model.releaseDate,
+                "Company.Id": $scope.model.company.id,
+                "Price": $scope.model.price,
+                "Age": $scope.model.restrictions,
+                "GenreIds": $scope.chosenGenres,
+                "Requirements": $scope.model.systemRequirements,
+                "ImageUrl": $scope.model.poster,
+                "Rating": $scope.model.rating
+            }
+
+            $http({
+                url: "Data/Game/Edit",
+                method: "Post",
+                params: model,
+                data: imgPicked ? $scope.img : "",
+                headers: {
+                    'Content-Type': "application/x-www-form-urlencoded"
+                }
+            }).then(function (val) {
+                LoadBarService.Hide();
+                $location.path("/Shop");
+            });
+
+
+        };
+
+        $scope.Cancel = function () {
+            $location.path("/Game/" + $routeParams.id);
+        }
+    }
+]);
+
 // services
 app.service("SideMenuService", function () {
     var items = [
         {
-            name: 'Главная',
+            name: "Главная",
             checked: false,
-            url: "/"
+            url: "/",
+            roles: [0, 1, 2]
         },
         {
-            name: 'Магазин',
+            name: "Магазин",
             checked: false,
-            url: "/Shop"
+            url: "/Shop",
+            roles: [0, 1, 2]
         },
         {
-            name: 'Библиотека',
+            name: "Библиотека",
             checked: false,
-            url: "/Library"
+            url: "/Library",
+            roles: [0, 1, 2]
         },
         {
             name: "Корзина",
             checked: false,
             url: "/Cart",
-            icon: "glyphicon glyphicon-shopping-cart"
+            icon: "glyphicon glyphicon-shopping-cart",
+            roles: [0, 1, 2]
         },
         {
-            name: "Separator"
+            name: "Separator",
+            roles: [0, 1]
         },
         {
             name: "Жанры",
             checked: false,
-            url: "/Genres"
+            url: "/Genres",
+            roles: [0, 1]
         },
         {
-            name: "Компании",
+            name: "Студии",
             checked: false,
-            url: "/Companies"
+            url: "/Companies",
+            roles: [0, 1]
         },
     ];
 
@@ -749,12 +1510,16 @@ app.service("SideMenuService", function () {
     }
 
     return {
-        Check: function (url) {
+        Check: function (url, role) {
             Reset();
 
             items.forEach(function (it, i, arr) {
+                it.show = false;
                 if (it.url === url)
                     it.checked = true;
+                if (it.roles.includes(role)) {
+                    it.show = true;
+                }
             });
         },
         Get: function () {
@@ -765,51 +1530,64 @@ app.service("SideMenuService", function () {
 
 app.service("UserService", ["$http", "$q",
     function ($http, $q) {
-        var user = {};
-        InitUser();
+        var user = {
+            data: {
+
+            }
+        };
 
         var logedIn = {};
 
         function ClearUser() {
-            user.login = "";
+            user.data = {};
 
-            user.id = -1;
-
-            user.role = -1;
+            logedIn.Value = false;
         }
 
         function InitUser() {
-            user.login = sessionStorage.getItem("userLogin");
-            user.id = sessionStorage.getItem("userId");
+            try {
+                var ob = JSON.parse(localStorage.getItem("userData"));
+
+                if (ob) {
+                    logedIn.Value = true;
+                    user.data = ob;
+                }
+            } catch (ex) {
+
+            }
         }
 
         return {
             Login: function (lg, pas) {
+
                 var def = $q.defer();
-                var user = {
+                var us = {
                     "Login": lg,
                     "Password": pas
                 };
 
                 $http({
-                    url: "/User/Login",
+                    url: "/Data/User/Login",
                     method: "Post",
-                    data: JSON.stringify(user)
+                    data: JSON.stringify(us)
                 }).then(function (val) {
 
-                    if (val.data !== -1) {
-                        logedIn.Value = true;
-                        //user.login = lg;
-                        //user.password = pas;
-                        //user.id = val.data.Id;
-                        //user.role = val.data.Role;
+                    if (val.data !== "409") {
+                        try {
+                            logedIn.Value = true;
+                            user.data.login = lg;
+                            user.data.password = pas;
+                            user.data.id = val.data.id;
+                            user.data.role = val.data.userRole;
+                            user.data.country = {};
+                            user.data.country.id = val.data.country.id;
 
-                        //localStorage.setItem("login", user.login);
-                        //localStorage.setItem("pas", user.password);
-                        //localStorage.setItem("userId", user.id);
-                        //localStorage.setItem("role", user.role);
+                            localStorage.setItem("userData", JSON.stringify(user.data));
 
-                        def.resolve(true);
+                            def.resolve(true);
+                        } catch (ex) {
+                            alert(ex);
+                        }
                     }
 
 
@@ -818,20 +1596,22 @@ app.service("UserService", ["$http", "$q",
 
 
                 return def.promise;
+
             },
-            Registrate: function (lg, pas) {
+            Registrate: function (lg, pas, Country) {
                 var def = $q.defer();
                 var user = {
                     "Login": lg,
-                    "Password": pas
+                    "Password": pas,
+                    "Country.Id": Country
                 };
                 $http({
-                    url: "/User/Create",
+                    url: "Data/User/Create",
                     method: "POST",
                     data: JSON.stringify(user)
                 }).then(function (val) {
 
-                    if (val.data !== 0) {
+                    if (val.data === "409") {
                         def.resolve(false);
                     }
 
@@ -842,18 +1622,9 @@ app.service("UserService", ["$http", "$q",
                 return def.promise;
             },
             LogOff: function () {
-                //localStorage.setItem("login", "");
-                //localStorage.setItem("pas", "");
-                //localStorage.setItem("userId", "");
-                //localStorage.setItem("role", -1);
-                logedIn.Value = false;
+                localStorage.setItem("userData", "");
 
                 ClearUser();
-
-                $http({
-                    url: "/User/LogOff",
-                    method: "Post"
-                });
             },
             IsLogedIn: function () {
                 if (logedIn.Value)
@@ -880,7 +1651,7 @@ app.service("GenreService", ["$http", "$q",
     function ($http, $q) {
 
         return {
-            Add: function (name, desc) {
+            Add: function (name, desc, callback) {
 
                 var genre = {
                     "Name": name,
@@ -893,7 +1664,7 @@ app.service("GenreService", ["$http", "$q",
                     data: JSON.stringify(genre)
                 }).then(function (val) {
 
-
+                    callback(val);
 
                 });
 
@@ -946,13 +1717,17 @@ app.service("GenreService", ["$http", "$q",
 
                 return def.promise;
             },
-            Edit: function (model) {
+            Edit: function (model, callback) {
 
 
                 $http({
                     url: "Data/Genre/Edit",
                     data: JSON.stringify(model),
                     method: "Post",
+                }).then(function (val) {
+
+                    callback(val);
+
                 });
             }
         };
@@ -1134,15 +1909,15 @@ app.service("LoadBarService", function () {
 });
 
 // directives
-app.directive('resizer', ['$window', function ($window) {
+app.directive("resizer", ["$window", function ($window) {
     return {
-        restrict: 'A',
+        restrict: "A",
         link: function (scope, elem, attrs) {
             if ($window.innerWidth > attrs.winSize)
                 elem.addClass(attrs.resizer);
             else elem.removeClass(attrs.resizer);
 
-            angular.element($window).on('resize', function () {
+            angular.element($window).on("resize", function () {
                 if ($window.innerWidth > attrs.winSize)
                     elem.addClass(attrs.resizer);
                 else elem.removeClass(attrs.resizer);
@@ -1151,15 +1926,34 @@ app.directive('resizer', ['$window', function ($window) {
     }
 }]);
 
-// listeners
-app.run(['$rootScope', '$route', 'SideMenuService', '$location', function ($rootScope, $route, SideMenuService, $location) {
-    $rootScope.$on('$routeChangeSuccess', function () {
-        document.title = $route.current.title;
+app.directive("gameTile", function () {
+    return {
+        templateUrl: "html/Game/GameTile.html",
+    };
+});
 
-        var url = $location.path();
-        SideMenuService.Check(url);
-    });
-}]);
+// filters
+app.filter('range', function () {
+    return function (val, range) {
+        range = parseInt(range);
+        for (var i = 0; i < range; i++)
+            val.push(i);
+        return val;
+    };
+});
+
+// listeners
+app.run(["$rootScope", "$route", "SideMenuService", "$location", "UserService",
+    function ($rootScope, $route, SideMenuService, $location, UserService) {
+        $rootScope.$on("$routeChangeSuccess", function () {
+            document.title = $route.current.title;
+            var user = UserService.GetUser();
+            var url = $location.path();
+
+            var e = angular.equals(user.data, {});
+            SideMenuService.Check(url, !e ? user.data.role : 2);
+        });
+    }]);
 
 //routing
 app.config([
@@ -1170,101 +1964,126 @@ app.config([
             {
                 templateUrl: "html/Index.html",
                 controller: "IndexController",
-                title: 'GameStore'
+                title: "GameStore"
             })
             .when("/Home/Layout/",
             {
                 templateUrl: "Views/Angular/Index.html",
                 controller: "IndexController",
-                title: 'GameStore'
+                title: "GameStore"
+            })
+
+             .when("/Shop",
+            {
+                templateUrl: "html/Shop.html",
+                controller: "ShopController",
+                title: "Магазин"
+            })
+            .when("/Search/:str",
+            {
+                templateUrl: "html/Search.html",
+                controller: "SearchController",
+                title: "Поиск"
             })
 
             .when("/Login",
             {
                 templateUrl: "html/User/Login.html",
                 controller: "LoginController",
-                title: 'Войти'
+                title: "Войти"
             })
             .when("/Registration",
             {
                 templateUrl: "html/User/Registration.html",
                 controller: "RegistrationController",
-                title: 'Регистрация'
+                title: "Регистрация"
+            })
+             .when("/UpdateUser",
+            {
+                templateUrl: "html/User/UpdateUser.html",
+                controller: "UpdateUserController",
+                title: "Настройки"
             })
 
             .when("/Genres",
             {
                 templateUrl: "html/Genre/AllGenres.html",
                 controller: "GenresController",
-                title: 'Жанры'
+                title: "Жанры"
             })
             .when("/Genre/Add",
             {
                 templateUrl: "html/Genre/AddGenre.html",
                 controller: "AddGenreController",
-                title: 'Добавить жанр'
+                title: "Добавить жанр"
             })
             .when("/Genre/Delete/:id",
             {
                 templateUrl: "html/Genre/DeleteGenre.html",
                 controller: "DeleteGenreController",
-                title: 'Удалить жанр'
+                title: "Удалить жанр"
             })
             .when("/Genre/Edit/:id",
             {
                 templateUrl: "html/Genre/EditGenre.html",
                 controller: "EditGenreController",
-                title: 'Редактировать жанр'
+                title: "Редактировать жанр"
             })
 
             .when("/Companies",
             {
                 templateUrl: "html/Company/AllCompanies.html",
                 controller: "CompaniesController",
-                title: 'Компании'
+                title: "Студии"
             })
             .when("/Company/Add",
             {
                 templateUrl: "html/Company/AddCompany.html",
                 controller: "AddCompanyController",
-                title: 'Добавить компанию'
+                title: "Добавить студию"
             })
             .when("/Company/Delete/:id",
             {
                 templateUrl: "html/Company/DeleteCompany.html",
                 controller: "DeleteCompanyController",
-                title: 'Удалить компанию'
+                title: "Удалить студию"
             })
             .when("/Company/Edit/:id",
             {
                 templateUrl: "html/Company/EditCompany.html",
                 controller: "EditCompanyController",
-                title: 'Редактировать компанию'
+                title: "Редактировать студию"
             })
 
             .when("/Games",
             {
                 templateUrl: "html/Company/AllCompanies.html",
                 controller: "CompaniesController",
-                title: 'Компании'
+                title: "Студии"
             })
             .when("/Game/Add",
             {
                 templateUrl: "html/Game/AddGame.html",
                 controller: "AddGameController",
-                title: 'Добавить игру'
+                title: "Добавить игру"
             })
             .when("/Game/Delete/:id",
             {
                 templateUrl: "html/Company/DeleteCompany.html",
                 controller: "DeleteCompanyController",
-                title: 'Удалить компанию'
+                title: "Удалить компанию"
             })
             .when("/Game/Edit/:id",
             {
-                templateUrl: "html/Company/EditCompany.html",
-                controller: "EditCompanyController",
-                title: 'Редактировать компанию'
+                templateUrl: "html/Game/EditGame.html",
+                controller: "EditGameController",
+                title: "Редактировать игру"
+            })
+            .when("/Game/:id",
+            {
+                templateUrl: "html/Game/Game.html",
+                controller: "GameController",
+                title: ""
             })
 
             .otherwise({ redirectTo: "/" });
@@ -1273,7 +2092,7 @@ app.config([
     }
 ]);
 
-app.config(['$qProvider', function ($qProvider) {
+app.config(["$qProvider", function ($qProvider) {
     $qProvider.errorOnUnhandledRejections(false);
 }]);
 

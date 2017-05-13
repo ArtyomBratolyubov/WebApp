@@ -141,6 +141,10 @@
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
+    <Content Include="html\Game\EditGame.html" />
+    <Content Include="html\Search.html" />
+    <Content Include="html\User\UpdateUser.html" />
+    <Content Include="Scripts\checklist-model.js" />
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="Content\Images\Technical\bg1.jpg" />
     <Content Include="Content\Images\Technical\bg2.jpg" />
@@ -157,10 +161,13 @@
     <Content Include="html\Company\AllCompanies.html" />
     <Content Include="html\Company\DeleteCompany.html" />
     <Content Include="html\Game\AddGame.html" />
+    <Content Include="html\Game\Game.html" />
+    <Content Include="html\Game\GameTile.html" />
     <Content Include="html\Genre\EditGenre.html" />
     <Content Include="html\Genre\DeleteGenre.html" />
     <Content Include="html\Genre\AllGenres.html" />
     <Content Include="html\Genre\AddGenre.html" />
+    <Content Include="html\Shop.html" />
     <Content Include="Images\favicon.ico" />
     <Content Include="Images\logo.png" />
     <Content Include="js\main.js" />
@@ -247,6 +254,8 @@
     <Compile Include="Controllers\CountryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\GenreController.cs" />
+    <Compile Include="Controllers\CommentController.cs" />
+    <Compile Include="Controllers\RatingController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -256,7 +265,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\User\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DAO\DAO.csproj">

@@ -4,6 +4,11 @@
             <input type="text" name="name" id="name" class="form" placeholder="Логин..." ng-model="Login" />
             <input type="password" name="name" id="name" class="form" placeholder="Пароль..." ng-model="Password" />
             <input type="password" name="name" id="name" class="form" placeholder="Повторите пароль..." ng-model="SecPassword" />
+
+            <span class="text-muted" style="color: gainsboro">
+                Страна
+            </span>
+            <select class="form" ng-model="Country" ng-options="template.id as template.countryName for template in Countries"></select>
         </div>
         <div class="">
             <button type="submit" id="submit" name="submit" class="form-btn" ng-click="registrate()">Зарегистрироваться</button>
@@ -11,4 +16,3 @@
         <div ng-repeat="error in errors track by error" style="color: red" class="reveal-animation">{{error}}</div>
     </div>
 </div>
-

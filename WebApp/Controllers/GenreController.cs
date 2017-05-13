@@ -15,16 +15,16 @@ namespace WebApp.Controllers
         private GenreService service = new GenreService();
 
         [HttpPost]
-        public void Add(GenreModel model)
+        public string Add(GenreModel model)
         {
-            service.Add(model);
+            return service.Add(model);
 
         }
 
         [HttpPost]
-        public void Edit(GenreModel model)
+        public string Edit(GenreModel model)
         {
-            service.Edit(model);
+            return service.Edit(model);
         }
 
         [HttpPost]

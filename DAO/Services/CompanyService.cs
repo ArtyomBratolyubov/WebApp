@@ -18,9 +18,10 @@ namespace DAO.Services
             }
         }
 
-        public void Add(CompanyModel model)
+        public string Add(CompanyModel model)
         {
             string resp = HttpActions.Post(ServiceURL.CompanyAdd, model.ToJObject().ToString());
+            return resp;
         }
 
 
@@ -35,9 +36,11 @@ namespace DAO.Services
             return HttpActions.Get(ServiceURL.CompanyGet + '/' + id);
         }
 
-        public void Edit(CompanyModel model)
+        public string Edit(CompanyModel model)
         {
             string resp = HttpActions.Post(ServiceURL.CompanyEdit, model.ToJObject().ToString());
+
+            return resp;
         }
     }
 }

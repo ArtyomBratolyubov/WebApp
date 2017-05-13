@@ -1,14 +1,18 @@
 ﻿<div class="col-md-9">
     <div class="reveal-animation">
         <div class="row">
-            <span class="pageHeader">Компании</span>
+            <span class="pageHeader">
+                Студии
+                <input type="text" class="filterInput" placeholder="Фильтр..." ng-model="filter" ng-change="DoFilter()" />
+            </span>
+            
             <a href="/Company/Add" class="btn btn-default pull-right">Добавить</a>
             <hr />
         </div>
         <div class="row">
 
 
-            <div class="panel" ng-repeat="model in Companies">
+            <div class="panel" ng-repeat="model in CompaniesToShow">
                 <div class="panel-heading">
                     <span style="font-size: 20px">{{model.companyName}}</span> 
                     <a href="/Company/Delete/{{model.id}}" class="btn btn-default btn-xs pull-right" role="button" style="background: rgb(203, 41, 41)">

@@ -1,0 +1,87 @@
+﻿<div class="col-md-9">
+    <div class="reveal-animation">
+        <div class="row ">
+            <div class="col-md-4 " style="height: 100%">
+                <div class="">
+                    <img ng-src="{{Game.poster}}" class="img-responsive " />
+                </div>
+                <div class="row-centered" style="margin-top: 20px;">
+                    <span ng-click="SetRating(n,0)" class="glyphicon glyphicon-star" ng-repeat="n in [] | range:Game.rating.toFixed()" style="font-size: 30px; color: orange;cursor: pointer"></span>
+                    <span ng-click="SetRating(n,1)" class="glyphicon glyphicon-star-empty" ng-repeat="n in [] | range:5-Game.rating.toFixed()" style="font-size: 30px;cursor: pointer"></span>
+                    <span style="font-size: 10px">({{Game.rating.toFixed(1)}})</span>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="row">
+                    <span style="font-size: 30px;">{{Game.title}}</span>
+                </div>
+                <div class="row">
+                    <span>{{Game.description}}</span>
+                </div>
+                <div class="row">
+                    <p>
+                        <img style="height: 30px;" ng-src="{{Game.company.url}}" />
+                    </p>
+                </div>
+                <div class="row">
+                    <p>Системные требования:</p>
+                    <span style="white-space: pre-wrap;">{{Game.systemRequirements}}</span>
+                </div>
+                <div class="row">
+                    <br />
+                    <p>
+                        Дата выхода:
+                        <span style="white-space: pre-wrap;">{{Game.releaseDate | date:'dd.MM.yyyy'}}</span>
+                    </p>
+                </div>
+                <p>
+                    <div class="row">
+
+                        <span ng-repeat="genre in Game.genres">
+                            {{genre.name}}
+                            <span ng-if="!$last">, </span>
+                        </span>
+
+                    </div>
+                </p>
+                <p>
+                    <div class="row">
+                        <span>{{Game.restrictions}} +</span>
+                    </div>
+                </p>
+            </div>
+        </div>
+        <div class="row" ng-if="User.data.role===0 || User.data.role===1">
+            <a href="/Game/Delete/{{Game.id}}" class="form-btn btn red-btn">Удалить</a>
+            <a href="/Game/Edit/{{Game.id}}" class="form-btn btn pull-right">Редактированть</a>
+        </div>
+        <div class="row">
+            <hr />
+            <div class="col-md-offset-2 col-md-8">
+                <div class="">
+                    <div class="status-upload">
+                        <form>
+                            <textarea placeholder="Комментарий..." class="" ng-model="Comment"></textarea>
+
+                            <button ng-click="AddComment()" type="submit" style="margin: 10px" class="btn btn-success green"><i class="fa fa-share"></i> Добавить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-md-offset-2 col-md-8">
+                <div class="panel panel-default reveal-animation" ng-repeat="com in Game.comments">
+                    <div class="panel-heading">
+                        {{com.user.username}}
+                        <button ng-if="com.user.id===User.data.id" href="#" ng-click="DeleteComment(com.id)" class="btn btn-default btn-xs pull-right" role="button" style="background: rgb(203, 41, 41)"> <i class="glyphicon glyphicon-remove"></i></button>
+                        <span class="pull-right" style="margin-right: 20px">{{com.time | date:'HH:mm:ss dd.MM.yyyy'}}</span>
+
+                    </div>
+                    <div class="panel-body">{{com.content}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

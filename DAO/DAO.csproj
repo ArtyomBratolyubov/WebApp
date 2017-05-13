@@ -47,6 +47,7 @@
     <Compile Include="Services\GameService.cs" />
     <Compile Include="Services\CompanyService.cs" />
     <Compile Include="Services\CountryService.cs" />
+    <Compile Include="Services\UserService.cs" />
     <Compile Include="Services\GenreService.cs" />
     <Compile Include="Helpers\HttpActions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -14,12 +14,13 @@ namespace WebApp
                                   "~/Scripts/angular-touch.js",
                                   "~/Scripts/angular-animate.js",
                                   "~/Scripts/angular-ui/ui-bootstrap.js",
+                                  "~/Scripts/checklist-model.js",
                                   "~/js/main.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                 "~/Content/bootstrap.min.css",
-                "~/Content/site.css",
-                "~/Content/font-awesome.min.css"));
+                "~/Content/site.css"
+                ));
         }
     }
 }

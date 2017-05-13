@@ -20,6 +20,20 @@
         public static readonly string Delete = "/delete";
 
 
+        public static readonly string User = Main + "/user";
+
+        public static readonly string UserLogin = User + "/login";
+
+        public static readonly string UserAdd = User + "/register";
+
+        public static readonly string UserGetAll = User + GetAll;
+
+        public static readonly string UserEdit = User + Edit;
+
+        public static readonly string UserGet = User + Get;
+
+
+
         public static readonly string Company = Main + "/company";
 
         public static readonly string CompanyAdd = Company + Add;

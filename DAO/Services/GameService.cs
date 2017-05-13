@@ -13,14 +13,22 @@ namespace DAO.Services
         {
             get
             {
-                var resp = HttpActions.Get(ServiceURL.CompanyGetAll);
+                var resp = HttpActions.Get(ServiceURL.GameGetAll);
                 return resp;
             }
         }
 
         public void Add(GameModel model)
         {
+
             string resp = HttpActions.Post(ServiceURL.GameAdd, model.ToJObject().ToString());
+
+            JObject json = JObject.Parse(resp);
+
+            foreach (var id in model.GenreIds)
+            {
+                HttpActions.Post(ServiceURL.Game + "/set/genre/" + id + "?gameId=" + json["id"], "");
+            }
         }
 
 
@@ -32,12 +40,24 @@ namespace DAO.Services
         public string Get(int id)
         {
 
-            return HttpActions.Get(ServiceURL.CompanyGet + '/' + id);
+            return HttpActions.Get(ServiceURL.GameGet + '/' + id);
         }
 
         public void Edit(GameModel model)
         {
-            string resp = HttpActions.Post(ServiceURL.CompanyEdit, model.ToJObject().ToString());
+            string resp = HttpActions.Post(ServiceURL.GameEdit, model.ToJObject().ToString());
+
+
+            JObject json = JObject.Parse(resp);
+
+
+            HttpActions.Post(ServiceURL.Game + "/delete/genres/" + json["id"], "");
+
+
+            foreach (var id in model.GenreIds)
+            {
+                HttpActions.Post(ServiceURL.Game + "/set/genre/" + id + "?gameId=" + json["id"], "");
+            }
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿
 <li id="userDropdown" uib-dropdown ng-if="isAuthenticated.Value">
     <a href="#" uib-dropdown-toggle data-toggle="userDropdown" class="userBtn" >
-        <span class="glyphicon glyphicon-user"></span> {{User.login}} <span class="caret"></span>
+        <span class="glyphicon glyphicon-user"></span> {{User.data.login}} <span class="caret"></span>
     </a>
     <ul class="dropdown-menu" uib-dropdown-menu>
-        <li><a href="#" >Настройки</a></li>
+        <li><a href="/UpdateUser" >Настройки</a></li>
         <li class="divider"></li>
         <li><a href="#" id="logOffBtn" ng-click="logOff()" >Выйти</a></li>
     </ul>

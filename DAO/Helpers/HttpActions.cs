@@ -80,7 +80,8 @@ namespace DAO.Helpers
             }
             catch (System.Net.WebException ex)
             {
-                return "{}";
+                var statusCode = ((HttpWebResponse)ex.Response).StatusCode;
+                return ((int)statusCode).ToString();
             }
         }
 
