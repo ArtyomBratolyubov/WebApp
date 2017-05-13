@@ -34,7 +34,7 @@ namespace DAO.Services
 
         public void Remove(int id)
         {
-            string resp = HttpActions.Post(ServiceURL.CompanyDelete + '/' + id, "");
+            string resp = HttpActions.Post(ServiceURL.GameDelete + '/' + id, "");
         }
 
         public string Get(int id)

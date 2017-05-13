@@ -1,0 +1,26 @@
+﻿
+
+<div class="col-md-offset-1 col-md-5">
+    <div class="reveal-animation">
+        <h3>Удалить игру?</h3>
+        <hr />
+        <div class="row">
+            <div>
+                <img ng-src="{{model.poster}}" class="col-md-6 col-xs-12" />
+            </div>
+            <div class="">
+                <h3>{{model.title}}</h3>
+
+            </div>
+        </div>
+        <div class="row">
+            <p nf-if="{{model.description}}">{{model.description}}</p>
+        </div>
+        <div class="row">
+            <div style="margin-bottom: 10px;" class="row">
+                <button type="submit" id="submit" name="submit" class="form-btn red-btn" ng-click="Delete()">Удалить</button>
+                <button type="submit" id="submit" name="submit" class="form-btn pull-right" ng-click="Cancel()">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>

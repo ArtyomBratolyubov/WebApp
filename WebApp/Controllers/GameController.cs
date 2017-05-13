@@ -54,7 +54,7 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
-        public void Delete(CompanyModel model)
+        public void Delete(GameModel model)
         {
             string path = Server.MapPath("/");
             ImagesHelper.DeleteImage(model.ImageUrl, path);

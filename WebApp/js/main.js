@@ -231,39 +231,39 @@ app.controller("ShopController", [
             }
 
             // rating
-            if (filter.RateFrom) {
+            if (isNumber(filter.RateFrom)) {
                 $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
                     return val.rating >= filter.RateFrom;
                 });
             }
 
-            if (filter.RateTo) {
+            if (isNumber(filter.RateTo)) {
                 $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
                     return val.rating <= filter.RateTo;
                 });
             }
 
             // age
-            if (filter.AgeFrom) {
+            if (isNumber(filter.AgeFrom)) {
                 $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
                     return val.restrictions >= filter.AgeFrom;
                 });
             }
 
-            if (filter.AgeTo) {
+            if (isNumber(filter.AgeTo)) {
                 $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
                     return val.restrictions <= filter.AgeTo;
                 });
             }
 
             // price
-            if (filter.PriceFrom) {
+            if (isNumber(filter.PriceFrom)) {
                 $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
                     return val.price >= filter.PriceFrom;
                 });
             }
 
-            if (filter.PriceTo) {
+            if (isNumber(filter.PriceTo)) {
                 $scope.GamesToShow = $scope.GamesToShow.filter(function (val) {
                     return val.price <= filter.PriceTo;
                 });
@@ -300,6 +300,10 @@ app.controller("ShopController", [
             }
         }
 
+        function isNumber(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+
         $scope.ResetFilter = function () {
             $scope.filter = {
                 RateFrom: $scope.filterBackup.RateFrom,
@@ -318,6 +322,46 @@ app.controller("ShopController", [
         $scope.RevSort = function () {
             $scope.GamesToShow = $scope.GamesToShow.reverse();
         }
+    }
+]);
+
+app.controller("CartController", [
+         "$scope", "$http", "GameService", "LoadBarService", "CartService", "UserService", "$location",
+    function ($scope, $http, GameService, LoadBarService, CartService, UserService, $location) {
+        var user = UserService.GetUser();
+        if (!UserService.IsLogedIn().Value)
+            $location.path("/Login");
+
+        LoadBarService.Show();
+
+        var promGames = GameService.GetAll();
+        $scope.Games = [];
+        $scope.GamesToShow = [];
+        promGames.then(function (value) {
+            $scope.Games = value.filter(function (val) {
+                return CartService.IsInCart(val.id, user.data.id);
+            });
+
+            $scope.Games.forEach(function(item, i, arr) {
+                $scope.TotalPrice += item.price;
+            });
+
+            $scope.DoFilter();
+
+            LoadBarService.Hide();
+        });
+
+        $scope.TotalPrice = 0;
+
+
+        $scope.filter = "";
+
+        $scope.DoFilter = function () {
+            $scope.GamesToShow = $scope.Games.filter(function (val) {
+                return val.title.toLowerCase().includes($scope.filter.toLowerCase());
+            });
+        }
+
     }
 ]);
 
@@ -1007,8 +1051,8 @@ app.controller("EditCompanyController", [
 
 
 app.controller("GameController", [
-    "$scope", "$http", "GameService", "LoadBarService", "$routeParams", "UserService", "$location",
-    function ($scope, $http, GameService, LoadBarService, $routeParams, UserService, $location) {
+    "$scope", "$http", "GameService", "LoadBarService", "$routeParams", "UserService", "$location", "CartService",
+    function ($scope, $http, GameService, LoadBarService, $routeParams, UserService, $location, CartService) {
         if (!$routeParams.id || $routeParams.id < 1) {
             $location.path("/Shop");
         }
@@ -1018,9 +1062,13 @@ app.controller("GameController", [
         $scope.User = UserService.GetUser();
         $scope.isAuthenticated = UserService.IsLogedIn();
 
+        $scope.isInCart = false;
+
         function updateGame() {
             var prom = GameService.Get($routeParams.id);
             prom.then(function (value) {
+                $scope.isInCart = CartService.IsInCart(value.id, $scope.User.data.id);
+
                 $scope.Game = value;
 
                 if (!$scope.Game.id) {
@@ -1031,6 +1079,7 @@ app.controller("GameController", [
 
                 document.title = value.title;
                 UpdateComments();
+
 
                 LoadBarService.Hide();
 
@@ -1123,6 +1172,19 @@ app.controller("GameController", [
             }).then(function () {
                 UpdateComments();
             });
+        }
+
+
+        $scope.AddToCart = function () {
+            CartService.Add($scope.Game.id, $scope.User.data.id);
+
+            $scope.isInCart = true;
+        }
+
+        $scope.DeleteFromCart = function () {
+            CartService.Remove($scope.Game.id, $scope.User.data.id);
+
+            $scope.isInCart = false;
         }
 
     }
@@ -1407,11 +1469,14 @@ app.controller("EditGameController", [
 
             if ($scope.model.title.length > 30)
                 $scope.errors.push("Название длиннее 30 символов!");
-            if ($scope.model.description.length > 300)
-                $scope.errors.push("Описание длиннее 300 символов!");
 
-            if ($scope.model.systemRequirements.length > 300)
-                $scope.errors.push("Системные требования длиннее 300 символов!");
+            if ($scope.model.description)
+                if ($scope.model.description.length > 300)
+                    $scope.errors.push("Описание длиннее 300 символов!");
+
+            if ($scope.model.systemRequirements)
+                if ($scope.model.systemRequirements.length > 300)
+                    $scope.errors.push("Системные требования длиннее 300 символов!");
 
             if (!$scope.model.releaseDate)
                 $scope.errors.push("Не указана Дата Выхода!");
@@ -1453,6 +1518,44 @@ app.controller("EditGameController", [
 
         $scope.Cancel = function () {
             $location.path("/Game/" + $routeParams.id);
+        }
+    }
+]);
+app.controller("DeleteGameController", [
+    "$scope", "$http", "GameService", "$routeParams", "$location", "LoadBarService",
+    function ($scope, $http, GameService, $routeParams, $location, LoadBarService) {
+        LoadBarService.Show();
+        if (!$routeParams.id || $routeParams.id < 1) {
+            $location.path("/Shop");
+        }
+
+        var promGame = GameService.Get($routeParams.id);
+        promGame.then(function (value) {
+            $scope.model = value;
+
+            if (!$scope.model.id) {
+                $location.path("/Shop");
+            }
+
+            LoadBarService.Hide();
+        });
+
+        $scope.model = {};
+
+        $scope.Cancel = function () {
+            $location.path("/Game/" + $routeParams.id);
+        }
+
+        $scope.Delete = function () {
+            if (LoadBarService.Get().show)
+                return;
+
+            var model = {
+                Id: $scope.model.id,
+                ImageUrl: $scope.model.poster
+            }
+            GameService.Delete(model);
+            $location.path("/Shop");
         }
     }
 ]);
@@ -1891,6 +1994,64 @@ app.service("GameService", ["$http", "$q",
     }
 ]);
 
+app.service("CartService", ["$http", "$q",
+    function () {
+
+        return {
+            IsInCart: function (gameId, userId) {
+
+                var cart = localStorage.getItem("cart");
+
+                if (!cart) {
+                    cart = [];
+                } else {
+                    cart = JSON.parse(cart);
+                }
+
+
+                for (var j = 0; j < cart.length; j++) {
+                    if (cart[j].userId === userId && cart[j].gameId === gameId) {
+                        return true;
+                    }
+                }
+
+
+                return false;
+            },
+            Add: function (gameId, userId) {
+                var cart = localStorage.getItem("cart");
+                if (!cart) {
+                    cart = [];
+                } else {
+                    cart = JSON.parse(cart);
+                }
+
+                cart.push({
+                    "gameId": gameId,
+                    "userId": userId
+                });
+
+                localStorage.setItem("cart", JSON.stringify(cart));
+            },
+            Remove: function (gameId, userId) {
+
+                var cart = localStorage.getItem("cart");
+
+                cart = JSON.parse(cart);
+
+                cart.splice(cart.indexOf({
+                    "gameId": gameId,
+                    "userId": userId
+                }), 1);
+
+                localStorage.setItem("cart", JSON.stringify(cart));
+
+            }
+        }
+
+    }
+]);
+
 app.service("LoadBarService", function () {
     var bar = { show: false };
 
@@ -1979,6 +2140,13 @@ app.config([
                 controller: "ShopController",
                 title: "Магазин"
             })
+             .when("/Cart",
+            {
+                templateUrl: "html/Cart.html",
+                controller: "CartController",
+                title: "Корзина"
+            })
+
             .when("/Search/:str",
             {
                 templateUrl: "html/Search.html",
@@ -2069,9 +2237,9 @@ app.config([
             })
             .when("/Game/Delete/:id",
             {
-                templateUrl: "html/Company/DeleteCompany.html",
-                controller: "DeleteCompanyController",
-                title: "Удалить компанию"
+                templateUrl: "html/Game/DeleteGame.html",
+                controller: "DeleteGameController",
+                title: "Удалить игру"
             })
             .when("/Game/Edit/:id",
             {
@@ -2095,445 +2263,3 @@ app.config([
 app.config(["$qProvider", function ($qProvider) {
     $qProvider.errorOnUnhandledRejections(false);
 }]);
-
-// staff
-
-app.controller("AddImageController", [
-    "$scope", "$http", "$location", "ImageService", "Page", "UserService", function ($scope, $http, $location, ImageService, Page, UserService) {
-        $scope.imageUpload = function (event) {
-            var files = event.target.files;
-
-            for (var i = 0; i < files.length; i++) {
-
-                var file = files[i];
-
-                $scope.file = file.name;
-                var reader = new FileReader();
-                reader.onload = $scope.imageIsLoaded;
-                reader.readAsDataURL(file);
-            }
-        };
-        $scope.imageIsLoaded = function (e) {
-            $scope.$apply(function () {
-                $scope.img = e.target.result;
-                imgPicked = true;
-            });
-        };
-        $http({
-            url: "/Data/GetAlbums",
-            method: "Get"
-        }).then(function (resp) {
-            $scope.albums = resp.data;
-
-            if ($scope.albums.length == 0) {
-                $scope.albums = [{
-                    Id: -1,
-                    Name: "No albums found"
-                }];
-            }
-
-            $scope.album = $scope.albums[0].Id;
-        });
-
-
-        $scope.img = "../../../Content/Images/Technical/noimagefound.jpg";
-
-        $scope.name = "";
-
-        $scope.file = "";
-
-        $scope.description = "";
-
-        $scope.album = {};
-
-        $scope.albums = [];
-
-        $scope.errors = [];
-
-        var imgPicked = false;
-
-        $scope.AddImage = function () {
-            if (!UserService.IsLogedIn().Value) {
-                $location.path("/Home/Login");
-                return;
-            }
-
-            $scope.errors = [];
-
-            if (!$scope.name)
-                $scope.errors.push("Name field is required!");
-            if ($scope.name.length > 16)
-                $scope.errors.push("Name is longer then 16!");
-            if ($scope.description.length > 500)
-                $scope.errors.push("Description is longer then 16!");
-            if (!imgPicked)
-                $scope.errors.push("You need to peak an image!");
-            if ($scope.album == -1)
-                $scope.errors.push("You need to peak an album!");
-
-            if ($scope.errors.length !== 0)
-                return;
-
-            ImageService.Add($scope.name,
-                $scope.description,
-                $scope.album,
-                $scope.img,
-                function () {
-
-                    $location.path("/Home/Album/" + $scope.album);
-                });
-
-
-        };
-    }
-]);
-
-app.controller("ImagesController", [
-        "$scope", "$http", "$routeParams", "ImageService", "Page", "UserService", "$location",
-        function ($scope, $http, $routeParams, ImageService, Page, UserService, $location) {
-
-            var prom = ImageService.GetAll($routeParams.id);
-
-            prom.then(function (value) {
-                $scope.images = value;
-                $scope.loaded = true;
-
-                InitExtensions();
-
-                CheckCart();
-            });
-
-            $scope.images = {};
-            $scope.imgView = false;
-
-            $scope.allImgMode = $routeParams.id === "all";
-
-            $scope.img = {};
-
-            $scope.loaded = false;
-
-            $scope.User = UserService.GetUser();
-
-            $scope.exts = [];
-
-            function InitExtensions() {
-                $scope.exts = [];
-                for (var i = 0; i < $scope.images.length; i++) {
-                    if ($scope.exts.filter(function (val) { return val.name === $scope.images[i].Ext }) == 0)
-                        $scope.exts.push({
-                            name: $scope.images[i].Ext,
-                            checked: true
-                        });
-                }
-            }
-
-            function CheckCart() {
-                var cart = localStorage.getItem("cart");
-                if (!cart) {
-                    cart = [];
-                } else {
-                    cart = JSON.parse(cart);
-                }
-
-                for (var i = 0; i < $scope.images.length; i++) {
-                    for (var j = 0; j < cart.length; j++) {
-                        if ($scope.images[i].Id == cart[j])
-                            $scope.images[i].isInCart = true;
-                    }
-                }
-
-            }
-
-            $scope.filterExt = function () {
-                $scope.images = ImageService.Get();
-                $scope.images = $scope.images.filter(function (val) {
-                    for (var i = 0; i < $scope.exts.length; i++) {
-                        if (!$scope.exts[i].checked)
-                            continue;
-                        if ($scope.exts[i].name === val.Ext)
-                            return true;
-                    }
-                    return false;
-                });
-            }
-            $scope.viewImg = function (img) {
-                $scope.imgView = true;
-                $scope.img = img;
-            };
-            $scope.closeViewImg = function () {
-                $scope.imgView = false;
-                $scope.img = null;
-
-
-            };
-            $scope.NextImg = function () {
-                $scope.img = ImageService.NextImg($scope.img, $scope.images);
-            };
-            $scope.PrevImg = function () {
-                $scope.img = ImageService.PrevImg($scope.img, $scope.images);
-            };
-            $scope.DeleteAlbum = function () {
-                $http({
-                    url: "/Data/DeleteAlbum",
-                    method: "Get",
-
-                    params: {
-                        "idt": $routeParams.id
-                    }
-                }).then(function () {
-                    $location.path("/Home/Albums");
-                });
-            }
-            $scope.DeleteImg = function () {
-
-                ImageService.Remove($scope.img);
-                $scope.closeViewImg();
-                $scope.images = ImageService.Get();
-                InitExtensions();
-                $scope.filterExt();
-            }
-            $scope.AddToCart = function () {
-
-                var cart = localStorage.getItem("cart");
-                if (!cart) {
-                    cart = [];
-                } else {
-                    cart = JSON.parse(cart);
-                }
-
-                cart.push($scope.img.Id);
-
-                localStorage.setItem("cart", JSON.stringify(cart));
-
-                $scope.img.isInCart = true;
-            }
-            $scope.getSelectedRating = function (rate) {
-                alert(rate);
-            }
-        }
-]);
-
-
-
-app.controller("CartController", [
-        "$scope", "$http", "$routeParams", "ImageService", "Page", "UserService", "$location",
-        function ($scope, $http, $routeParams, ImageService, Page, UserService, $location) {
-
-            var prom = ImageService.GetAll("all");
-
-            prom.then(function (value) {
-                $scope.images = value;
-                $scope.loaded = true;
-
-                initCart();
-            });
-
-
-            $scope.images = {};
-
-            $scope.loaded = false;
-
-            $scope.User = UserService.GetUser();
-
-            function initCart() {
-                var cart = localStorage.getItem("cart");
-                if (!cart) {
-                    $scope.images = [];
-                } else {
-                    cart = JSON.parse(cart);
-
-                    $scope.images = $scope.images.filter(function (val) {
-                        for (var i = 0; i < cart.length; i++) {
-                            if (val.Id == cart[i])
-                                return true;
-                        }
-                        return false;
-                    });
-                }
-            }
-
-            $scope.RemoveFromCart = function (id) {
-                var cart = localStorage.getItem("cart");
-
-                cart = JSON.parse(cart);
-
-                cart.splice(cart.indexOf(id), 1);
-
-                localStorage.setItem("cart", JSON.stringify(cart));
-
-                initCart();
-            }
-        }
-]);
-
-
-
-app.controller("AddAlbumController", [
-    "$scope", "$http", "$location", "Page", "UserService", function ($scope, $http, $location, Page, UserService) {
-
-
-        $scope.name = "";
-
-        $scope.description = "";
-
-        $scope.errors = [];
-
-        $scope.AddAlbum = function () {
-            if (!UserService.IsLogedIn().Value) {
-                $location.path("/Home/Login");
-                return;
-            }
-
-            $scope.errors = [];
-
-            if (!$scope.name)
-                $scope.errors.push("Name field is required!");
-            if ($scope.name.length > 16)
-                $scope.errors.push("Name is longer then 16!");
-            if ($scope.description.length > 500)
-                $scope.errors.push("Description is longer then 16!");
-
-            if ($scope.errors.length !== 0)
-                return;
-
-            $http({
-                url: "/Data/AddAlbum",
-                method: "Get",
-
-                params: {
-                    "name": $scope.name,
-                    "desc": $scope.description,
-                    "author": UserService.GetUser().id
-                }
-
-            }).then(function () {
-
-                $location.path("/Home/Albums");
-            });
-        };
-    }
-]);
-
-app.controller("AlbumsController", [
-    "$scope", "$http", "$window", "Page", function ($scope, $http, $window, Page) {
-
-
-        getAlbums();
-        $scope.albums = [];
-
-        function getAlbums() {
-            $http({
-                url: "/Data/GetAlbums",
-                method: "Get"
-            }).then(function (resp) {
-                $scope.albums = resp.data.filter(function (val) {
-                    return val.CoverUrl !== "/Content/Images/Technical/noimagefound.jpg";
-                });
-            });
-        }
-    }
-]);
-
-app.service("ImageService", ["$http", "$q", "UserService",
-    function ($http, $q, UserService) {
-        var _data;
-
-        var albumId = {};
-
-        return {
-            GetAll: function (album) {
-                var def = $q.defer();
-
-                albumId = album;
-
-
-                var ctrl;
-                if (albumId === "all") {
-                    ctrl = "/Data/GetImages";
-                } else {
-                    ctrl = "/Data/GetImagesById";
-                }
-                $http({
-                    url: ctrl,
-                    method: "Get",
-                    params: {
-                        "albumId": albumId
-                    }
-                }).then(function (val) {
-                    _data = val.data;
-                    def.resolve(_data);
-                });
-
-
-
-                return def.promise;
-            },
-
-            Get: function () {
-                return _data;
-            },
-
-            Add: function (name, desc, album, img, callback) {
-
-                $http({
-                    url: "/Data/AddImage",
-                    method: "Post",
-
-                    params: {
-                        "name": name,
-                        "desc": desc,
-                        "albumId": album,
-                        "author": UserService.GetUser().id
-                    },
-                    data: {
-                        "imgCode": img
-                    },
-                    headers: {
-                        'Content-Type': "application/x-www-form-urlencoded"
-                    }
-                }).then(function () {
-
-                    callback();
-                });
-            },
-
-            NextImg: function (img, imgs) {
-                for (var i = 0; i < imgs.length; i++) {
-                    if (imgs[i] === img) {
-                        if (i !== imgs.length - 1)
-                            return imgs[i + 1];
-                        else
-                            return imgs[0];
-                    }
-                }
-            },
-
-            PrevImg: function (img, imgs) {
-                for (var i = imgs.length - 1; i > -1 ; i--) {
-                    if (imgs[i] === img) {
-                        if (i !== 0)
-                            return imgs[i - 1];
-                        else
-                            return imgs[imgs.length - 1];
-                    }
-                }
-            },
-
-            Remove: function (img) {
-                $http({
-                    url: "/Data/DeleteImage",
-                    method: "Get",
-
-                    params: {
-                        "idt": img.Id
-                    }
-                });
-
-                var index = _data.indexOf(img);
-
-                if (index > -1) {
-                    _data.splice(index, 1);
-                }
-            }
-        };
-    }]);

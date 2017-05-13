@@ -141,8 +141,10 @@
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
+    <Content Include="html\Game\DeleteGame.html" />
     <Content Include="html\Game\EditGame.html" />
     <Content Include="html\Search.html" />
+    <Content Include="html\Cart.html" />
     <Content Include="html\User\UpdateUser.html" />
     <Content Include="Scripts\checklist-model.js" />
     <Content Include="Content\font-awesome.min.css" />
