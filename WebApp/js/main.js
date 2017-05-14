@@ -679,7 +679,7 @@ app.controller("LoginController", [
                 if (val === true)
                     $location.path("/");
                 else
-                    $scope.errors = ["Не верный догин и/или пароль!"];
+                    $scope.errors = ["Не верный логин и/или пароль!"];
 
                 LoadBarService.Hide();
             });
