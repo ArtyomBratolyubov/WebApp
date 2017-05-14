@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommentModel.cs" />
+    <Compile Include="OrderModel.cs" />
     <Compile Include="RatingModel.cs" />
     <Compile Include="GameModel.cs" />
     <Compile Include="CountryModel.cs" />

@@ -17,7 +17,7 @@ namespace WebApp.Controllers
         private GameService service = new GameService();
 
         [HttpPost]
-        public void Add(GameModel model)
+        public string Add(GameModel model)
         {
 
             string base64 = Request.Form.ToString();
@@ -33,12 +33,12 @@ namespace WebApp.Controllers
                 model.ImageUrl = "/Content/Images/Technical/noimagefound.jpg";
             }
 
-            service.Add(model);
+            return service.Add(model);
 
         }
 
         [HttpPost]
-        public void Edit(GameModel model)
+        public string Edit(GameModel model)
         {
             string base64 = Request.Form.ToString();
 
@@ -50,7 +50,7 @@ namespace WebApp.Controllers
                 model.ImageUrl = "/Content/Images/All/" + ImagesHelper.SaveImage(base64, path);
             }
 
-            service.Edit(model);
+            return service.Edit(model);
         }
 
         [HttpPost]

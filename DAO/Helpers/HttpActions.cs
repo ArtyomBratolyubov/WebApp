@@ -37,6 +37,9 @@ namespace DAO.Helpers
             }
             catch (System.Net.WebException ex)
             {
+                if (url.Contains("list"))
+                    return "[]";
+
                 return "{}";
             }
         }

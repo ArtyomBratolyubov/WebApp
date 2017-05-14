@@ -1,12 +1,18 @@
 ﻿
+<li uib-dropdown ng-if="isAuthenticated.Value">
+    <span class="navbar-brand" style="font-size: 12px; color: grey">
+        Потрачено: {{User.data.balance}}$
+    </span>
+    
+</li>
 <li id="userDropdown" uib-dropdown ng-if="isAuthenticated.Value">
-    <a href="#" uib-dropdown-toggle data-toggle="userDropdown" class="userBtn" >
+    <a href="#" uib-dropdown-toggle data-toggle="userDropdown" class="userBtn">
         <span class="glyphicon glyphicon-user"></span> {{User.data.login}} <span class="caret"></span>
     </a>
     <ul class="dropdown-menu" uib-dropdown-menu>
-        <li><a href="/UpdateUser" >Настройки</a></li>
+        <li><a href="/UpdateUser">Настройки</a></li>
         <li class="divider"></li>
-        <li><a href="#" id="logOffBtn" ng-click="logOff()" >Выйти</a></li>
+        <li><a href="#" id="logOffBtn" ng-click="logOff()">Выйти</a></li>
     </ul>
 </li>
 <li ng-if="!isAuthenticated.Value"><a href="~/Registration"><span class="glyphicon glyphicon-user"></span> Регистрация</a></li>

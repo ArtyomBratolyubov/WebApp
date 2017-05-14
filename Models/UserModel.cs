@@ -26,7 +26,7 @@ namespace WebApp.Models
             json.id = Id;
             json.username = Login;
             json.password = Password;
-            json.userRole = RoleId ?? 2;
+            json.userRole = RoleId;
             json.country = new JObject();
             json.country.id = Country?.Id;
 

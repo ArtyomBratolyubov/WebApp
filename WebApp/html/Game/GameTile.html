@@ -9,10 +9,9 @@
                 <span class="pull-right">${{game.price}}</span>
                 <a href="/Game/{{game.id}}">{{game.title}}</a>
             </h5>
-            <!--<p>{{game.description}}</p>-->
         </div>
         <div class="ratings">
-            <p class="pull-right">15 reviews</p>
+            <p class="pull-right" ng-show="game.commentNumber">{{game.commentNumber}} <span class="glyphicon glyphicon-comment"></span></p>
             <p>
                 <span class="glyphicon glyphicon-star" ng-repeat="n in [] | range:game.rating.toFixed()"></span>
                 <span class="glyphicon glyphicon-star-empty" ng-repeat="n in [] | range:5-game.rating.toFixed()"></span>

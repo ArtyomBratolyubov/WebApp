@@ -45,5 +45,12 @@ namespace WebApp.Controllers
             return service.Edit(model);
         }
 
+
+
+        [HttpPost]
+        public string SetRole(UserModel model)
+        {
+            return service.SetRole(model.Id.Value, model.RoleId.Value);
+        }
     }
 }

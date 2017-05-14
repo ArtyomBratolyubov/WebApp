@@ -11,12 +11,18 @@
                         <span ng-click="SetRating(n,1)" class="glyphicon glyphicon-star-empty" ng-repeat="n in [] | range:5-Game.rating.toFixed()" style="font-size: 30px; cursor: pointer"></span>
                         <span style="font-size: 10px">({{Game.rating.toFixed(1)}})</span>
                     </div>
-                    <div class="row" ng-if="Game">
-                        <button  ng-click="isInCart? DeleteFromCart(): AddToCart()" class="form-btn btn">
+                    <div class="row" ng-if="Game && !isBought">
+                        <button  ng-click="isInCart? DeleteFromCart(): AddToCart()" class="form-btn btn" style="width: 230px !important">
                             <span ng-show="!isInCart">В корзину </span>
                             <span ng-show="isInCart">Убрать из корзины </span>
                             <span class="glyphicon glyphicon-shopping-cart"></span> {{Game.price}}$
                         </button>
+                    </div>
+                    <div class="row" ng-if="Game && isBought">
+                        Ваш ключ:
+                        <p>
+                            {{Game.orderKey}}
+                        </p>
                     </div>
                 </div>
             </div>

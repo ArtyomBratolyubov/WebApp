@@ -18,10 +18,13 @@ namespace DAO.Services
             }
         }
 
-        public void Add(GameModel model)
+        public string Add(GameModel model)
         {
 
             string resp = HttpActions.Post(ServiceURL.GameAdd, model.ToJObject().ToString());
+
+            if (resp == "409")
+                return resp;
 
             JObject json = JObject.Parse(resp);
 
@@ -29,6 +32,7 @@ namespace DAO.Services
             {
                 HttpActions.Post(ServiceURL.Game + "/set/genre/" + id + "?gameId=" + json["id"], "");
             }
+            return "";
         }
 
 
@@ -43,10 +47,12 @@ namespace DAO.Services
             return HttpActions.Get(ServiceURL.GameGet + '/' + id);
         }
 
-        public void Edit(GameModel model)
+        public string Edit(GameModel model)
         {
             string resp = HttpActions.Post(ServiceURL.GameEdit, model.ToJObject().ToString());
 
+            if (resp == "409")
+                return resp;
 
             JObject json = JObject.Parse(resp);
 
@@ -58,6 +64,8 @@ namespace DAO.Services
             {
                 HttpActions.Post(ServiceURL.Game + "/set/genre/" + id + "?gameId=" + json["id"], "");
             }
+
+            return "";
         }
     }
 }

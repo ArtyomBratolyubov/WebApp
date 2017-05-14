@@ -1,9 +1,11 @@
-﻿var app = angular.module("main", ["ngRoute", "ui.bootstrap", "ngAnimate", "ngTouch", "checklist-model"]);
+﻿var app = angular.module("main", ["ngRoute", "ui.bootstrap", "ngAnimate", "ngTouch", "checklist-model", "chart.js"]);
 
 // controllers
 app.controller("SideMenuController", function ($scope, SideMenuService) {
 
     $scope.Items = SideMenuService.Get();
+
+
 });
 
 app.controller("NavBarController", [
@@ -48,7 +50,7 @@ app.controller("IndexController", [
 
             initSlides();
             initRatedGames();
-            initCommnetedGamess();
+            initCommnetedGames();
 
             LoadBarService.Hide();
         });
@@ -68,13 +70,17 @@ app.controller("IndexController", [
         $scope.RatedGames = [];
 
         function initRatedGames() {
-            $scope.RatedGames = $scope.Games;
+            $scope.RatedGames = $scope.Games.sort(function (a, b) {
+                return b.rating - a.rating;
+            }).slice(0, 4);
         }
 
         $scope.CommnetedGames = [];
 
-        function initCommnetedGamess() {
-            $scope.CommnetedGames = $scope.Games;
+        function initCommnetedGames() {
+            $scope.CommnetedGames = $scope.Games.sort(function (a, b) {
+                return b.commentNumber - a.commentNumber;
+            }).slice(0, 4);
         }
     }
 ]);
@@ -110,15 +116,11 @@ app.controller("ShopController", [
                 }
             },
             {
-                Name: "По покупкам",
+                Name: "По отзывам",
                 Sort: function () {
                     if ($scope.GamesToShow) {
                         $scope.GamesToShow.sort(function (a, b) {
-                            if (!a.orders)
-                                a.orders = [];
-                            if (!b.orders)
-                                b.orders = [];
-                            return a.orders.length - b.orders.length;
+                            return b.commentNumber - a.commentNumber;
                         });
                     }
                     $scope.SortName = this.Name;
@@ -136,7 +138,7 @@ app.controller("ShopController", [
                 }
             },
             {
-                Name: "По дате выхода",
+                Name: "По релизу",
                 Sort: function () {
                     if ($scope.GamesToShow) {
                         $scope.GamesToShow.sort(function (a, b) {
@@ -160,7 +162,7 @@ app.controller("ShopController", [
 
                     $scope.Sortings[0].Sort();
                 } catch (ex) {
-                    alert(ex);
+
                 }
             }
 
@@ -316,6 +318,12 @@ app.controller("ShopController", [
                 Genres: $scope.filterBackup.Genres,
             }
             $scope.DoFilter();
+
+            if ($scope.SortName) {
+                $scope.Sortings.find(function (val) {
+                    return val.Name === $scope.SortName;
+                }).Sort();
+            }
         }
 
 
@@ -334,22 +342,30 @@ app.controller("CartController", [
 
         LoadBarService.Show();
 
-        var promGames = GameService.GetAll();
+
         $scope.Games = [];
         $scope.GamesToShow = [];
-        promGames.then(function (value) {
-            $scope.Games = value.filter(function (val) {
-                return CartService.IsInCart(val.id, user.data.id);
+
+
+        function UpdateGames() {
+            var promGames = GameService.GetAll();
+
+            promGames.then(function (value) {
+                $scope.Games = value.filter(function (val) {
+                    return CartService.IsInCart(val.id, user.data.id);
+                });
+
+                $scope.Games.forEach(function (item, i, arr) {
+                    $scope.TotalPrice += item.price;
+                });
+
+                $scope.DoFilter();
+
+                LoadBarService.Hide();
             });
+        }
 
-            $scope.Games.forEach(function(item, i, arr) {
-                $scope.TotalPrice += item.price;
-            });
-
-            $scope.DoFilter();
-
-            LoadBarService.Hide();
-        });
+        UpdateGames();
 
         $scope.TotalPrice = 0;
 
@@ -362,6 +378,251 @@ app.controller("CartController", [
             });
         }
 
+        $scope.MakeOrder = function () {
+            if (LoadBarService.Get().show)
+                return;
+            if ($scope.Games.length === 0)
+                return;
+
+            LoadBarService.Show();
+            $http({
+                url: "Data/Order/Add",
+                method: "Post",
+                params: {
+                    Games: $scope.Games.map(function (val) {
+                        return val.id;
+                    }),
+                    UserId: user.data.id
+                },
+            }).then(function (val) {
+                LoadBarService.Hide();
+
+                CartService.Clear(user.data.id);
+
+                UserService.UpdateUser();
+
+                $location.path("/Library");
+            });
+        }
+
+        $scope.ClearCart = function () {
+            CartService.Clear(user.data.id);
+            $scope.TotalPrice = 0;
+            UpdateGames();
+        }
+
+    }
+]);
+
+app.controller("LibraryController", [
+         "$scope", "$http", "GameService", "LoadBarService", "CartService", "UserService", "$location", "OrderService",
+    function ($scope, $http, GameService, LoadBarService, CartService, UserService, $location, OrderService) {
+        var user = UserService.GetUser();
+        if (!UserService.IsLogedIn().Value)
+            $location.path("/Login");
+
+        LoadBarService.Show();
+
+        var promGames = GameService.GetAll();
+        $scope.Games = [];
+        $scope.GamesToShow = [];
+        promGames.then(function (value) {
+            OrderService.GetByUser(user.data.id).then(function (val) {
+
+
+                $scope.Games = value.filter(function (game) {
+                    return val.find(function (element, index, array) {
+                        return element.game.id === game.id;
+                    });
+                });
+
+                $scope.DoFilter();
+
+                LoadBarService.Hide();
+
+            });
+
+
+
+        });
+
+
+        $scope.filter = "";
+
+        $scope.DoFilter = function () {
+            $scope.GamesToShow = $scope.Games.filter(function (val) {
+                return val.title.toLowerCase().includes($scope.filter.toLowerCase());
+            });
+        }
+
+    }
+]);
+
+app.controller("StatisticsController", [
+         "$scope", "$http", "OrderService", "LoadBarService", "UserService", "$location",
+    function ($scope, $http, OrderService, LoadBarService, UserService, $location) {
+        var user = UserService.GetUser();
+        if (!UserService.IsLogedIn().Value)
+            $location.path("/Login");
+
+        LoadBarService.Show();
+
+        var prom = OrderService.GetAll();
+        $scope.Orders = [];
+        prom.then(function (value) {
+            $scope.Orders = value;
+
+            initLineAllYears();
+
+            initCirc();
+
+            LoadBarService.Hide();
+        });
+
+        $scope.LineAllYears = {};
+        function initLineAllYears() {
+            try {
+                var startDate = new Date(Date.parse($scope.Orders[0].time));
+                var startYear = startDate.getFullYear();
+
+                var endDate = new Date(Date.parse($scope.Orders[$scope.Orders.length - 1].time));
+                var endYear = endDate.getFullYear();
+
+                $scope.LineAllYears.data = [];
+                $scope.LineAllYears.labels = [];
+                while (startYear <= endYear) {
+                    $scope.LineAllYears.labels.push(startYear);
+
+                    var obs = $scope.Orders.filter(function (val) {
+                        return startYear === new Date(Date.parse(val.time)).getFullYear();
+                    });
+
+                    var total = 0;
+
+                    obs.forEach(function (item) {
+                        total += item.game.price;
+                    });
+
+                    $scope.LineAllYears.data.push(total);
+
+                    startYear++;
+                }
+
+            } catch (ex) {
+                //alert(ex);
+            }
+        }
+
+        $scope.Cir = {};
+
+        function initCirc() {
+            try {
+                $scope.Cir.data = [];
+                $scope.Cir.labels = $scope.Orders.map(function (val) {
+                    return val.user.country.countryName;
+                });
+
+                $scope.Cir.labels = $scope.Cir.labels.filter(onlyUnique);
+
+                $scope.Cir.labels.forEach(function (county) {
+
+                    var obs = $scope.Orders.filter(function (val) {
+                        return county === val.user.country.countryName;;
+                    });
+
+                    var total = 0;
+
+                    obs.forEach(function (item) {
+                        total += item.game.price;
+                    });
+
+                    $scope.Cir.data.push(total);
+
+                });
+
+
+            } catch (ex) {
+                //alert(ex);
+            }
+        }
+
+
+        function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+        }
+    }
+]);
+
+app.controller("UsersController", [
+         "$scope", "$http", "LoadBarService", "UserService", "$location",
+    function ($scope, $http, LoadBarService, UserService, $location) {
+        var user = UserService.GetUser();
+        if (!UserService.IsLogedIn().Value)
+            $location.path("/Login");
+
+        LoadBarService.Show();
+
+
+        $scope.Users = [];
+        $scope.UsersToShow = [];
+
+
+        $scope.TotalPrice = 0;
+
+        function UpdateUsers() {
+            var prom = UserService.GetAll();
+            prom.then(function (value) {
+                $scope.Users = value.sort(function (a, b) {
+                    return a.username.toLowerCase().localeCompare(b.username.toLowerCase());
+                }).filter(function (val) {
+                    return val.id !== user.data.id;
+                });
+
+                $scope.DoFilter();
+
+                LoadBarService.Hide();
+            });
+        }
+
+        UpdateUsers();
+
+        $scope.filter = "";
+
+        $scope.DoFilter = function () {
+            $scope.UsersToShow = $scope.Users.filter(function (val) {
+                return val.username.toLowerCase().includes($scope.filter.toLowerCase());
+            });
+        }
+
+        $scope.MakeModer = function (id) {
+            var user = {
+                "Id": id,
+                "RoleId": 1
+            };
+            $http({
+                url: "Data/User/SetRole",
+                method: "POST",
+                data: JSON.stringify(user)
+            }).then(function (val) {
+
+                UpdateUsers();
+            });
+        }
+
+        $scope.MakeUser = function (id) {
+            var user = {
+                "Id": id,
+                "RoleId": 2
+            };
+            $http({
+                url: "Data/User/SetRole",
+                method: "POST",
+                data: JSON.stringify(user)
+            }).then(function (val) {
+
+                UpdateUsers();
+            });
+        }
     }
 ]);
 
@@ -384,7 +645,7 @@ app.controller("SearchController", [
 
                 LoadBarService.Hide();
             } catch (ex) {
-                alert(ex);
+                //alert(ex);
             }
         });
 
@@ -396,7 +657,7 @@ app.controller("SearchController", [
 
 
 app.controller("LoginController", [
-    "$scope", "UserService", "$location", function ($scope, UserService, $location) {
+    "$scope", "UserService", "$location", "LoadBarService", function ($scope, UserService, $location, LoadBarService) {
 
         $scope.Login = "";
 
@@ -413,12 +674,14 @@ app.controller("LoginController", [
 
             if ($scope.errors.length !== 0)
                 return;
-
+            LoadBarService.Show();
             UserService.Login($scope.Login, $scope.Password).then(function (val) {
                 if (val === true)
                     $location.path("/");
                 else
                     $scope.errors = ["Не верный догин и/или пароль!"];
+
+                LoadBarService.Hide();
             });
         };
     }
@@ -1051,16 +1314,18 @@ app.controller("EditCompanyController", [
 
 
 app.controller("GameController", [
-    "$scope", "$http", "GameService", "LoadBarService", "$routeParams", "UserService", "$location", "CartService",
-    function ($scope, $http, GameService, LoadBarService, $routeParams, UserService, $location, CartService) {
+    "$scope", "$http", "GameService", "LoadBarService", "$routeParams", "UserService", "$location", "CartService", "$anchorScroll", "OrderService",
+    function ($scope, $http, GameService, LoadBarService, $routeParams, UserService, $location, CartService, $anchorScroll, OrderService) {
         if (!$routeParams.id || $routeParams.id < 1) {
             $location.path("/Shop");
         }
 
+        $anchorScroll();
         LoadBarService.Show();
 
         $scope.User = UserService.GetUser();
         $scope.isAuthenticated = UserService.IsLogedIn();
+        $scope.isBought = false;
 
         $scope.isInCart = false;
 
@@ -1080,9 +1345,23 @@ app.controller("GameController", [
                 document.title = value.title;
                 UpdateComments();
 
+                var orders = [];
+                try {
+                    OrderService.GetByGameUser($scope.Game.id, $scope.User.data.id).then(function (val) {
+                        orders = val;
+
+                        if (orders.length > 0) {
+                            $scope.isBought = true;
+                            $scope.Game.orderKey = orders[0].orderKey;
+                        }
+                    });
+                } catch (ex) {
+
+                }
+
+
 
                 LoadBarService.Hide();
-
 
             });
         }
@@ -1313,18 +1592,13 @@ app.controller("AddGameController", [
             if (!imgPicked)
                 $scope.errors.push("Не выбрано изображение!");
 
+            if ($scope.chosenGenres.length === 0)
+                $scope.errors.push("Не выбран ни один жанр!");
+
             if ($scope.errors.length !== 0)
                 return;
 
             LoadBarService.Show();
-
-            var cGen = [];
-
-            $scope.chosenGenres.forEach(function (item, i, arr) {
-                cGen.push({
-                    "Id": item
-                });
-            });
 
             var model = {
                 "Name": $scope.model.Name,
@@ -1346,8 +1620,16 @@ app.controller("AddGameController", [
                     'Content-Type': "application/x-www-form-urlencoded"
                 }
             }).then(function (val) {
-                LoadBarService.Hide();
-                $location.path("/Shop");
+                if (val.data === "409") {
+                    $scope.errors = ["Название уже используется!"];
+                    LoadBarService.Hide();
+                    return;
+                } else {
+                    LoadBarService.Hide();
+                    $location.path("/Shop");
+                }
+
+
             });
 
 
@@ -1604,6 +1886,18 @@ app.service("SideMenuService", function () {
             url: "/Companies",
             roles: [0, 1]
         },
+        {
+            name: "Пользователи",
+            checked: false,
+            url: "/Users",
+            roles: [0]
+        },
+        {
+            name: "Статистика",
+            checked: false,
+            url: "/Statistics",
+            roles: [0]
+        },
     ];
 
     function Reset() {
@@ -1684,12 +1978,13 @@ app.service("UserService", ["$http", "$q",
                             user.data.role = val.data.userRole;
                             user.data.country = {};
                             user.data.country.id = val.data.country.id;
+                            user.data.balance = val.data.balance;
 
                             localStorage.setItem("userData", JSON.stringify(user.data));
 
                             def.resolve(true);
                         } catch (ex) {
-                            alert(ex);
+                            //alert(ex);
                         }
                     }
 
@@ -1745,7 +2040,30 @@ app.service("UserService", ["$http", "$q",
             GetUser: function () {
                 InitUser();
                 return user;
-            }
+            },
+            GetAll: function () {
+
+                var def = $q.defer();
+
+
+                $http({
+                    url: "/Data/User/GetAll",
+                    method: "Post",
+                }).then(function (val) {
+                    var _data = angular.fromJson(val.data);
+                    def.resolve(_data);
+                    return val;
+                });
+
+
+                return def.promise;
+
+            },
+            UpdateUser: function () {
+                var us = this.GetUser();
+
+                this.Login(us.data.login, us.data.password);
+            },
         };
     }
 ]);
@@ -2046,7 +2364,110 @@ app.service("CartService", ["$http", "$q",
 
                 localStorage.setItem("cart", JSON.stringify(cart));
 
+            },
+            Clear: function (userId) {
+                var cart = localStorage.getItem("cart");
+
+                cart = JSON.parse(cart);
+
+                while (true) {
+                    var ob = cart.find(function (element, index, array) {
+                        return element.userId === userId;
+                    });
+
+                    if (!ob)
+                        break;
+                    else {
+                        var index = cart.indexOf(ob);
+
+                        cart.splice(index, 1);
+                    }
+                }
+
+
+                localStorage.setItem("cart", JSON.stringify(cart));
             }
+        }
+
+    }
+]);
+
+app.service("OrderService", ["$http", "$q",
+    function ($http, $q) {
+
+
+        return {
+            GetByGameUser: function (gameId, userId) {
+
+                var def = $q.defer();
+
+                $http({
+                    url: "Data/Order/GetAll",
+                    method: "Post",
+                }).then(function (val) {
+
+                    var _data = angular.fromJson(val.data);
+
+
+                    _data = _data.filter(function (val) {
+                        return val.game.id === gameId && val.user.id === userId;
+                    });
+
+
+                    def.resolve(_data);
+                    return val;
+
+                });
+
+                return def.promise;
+            },
+            GetByUser: function (userId) {
+
+                var def = $q.defer();
+
+                $http({
+                    url: "Data/Order/GetAll",
+                    method: "Post",
+                }).then(function (val) {
+
+                    try {
+                        var _data = angular.fromJson(val.data);
+
+                        if (_data.length)
+                            _data = _data.filter(function (val) {
+                                return val.user.id === userId;
+                            });
+
+                    } catch (ex) {
+                        //alert(ex);
+
+                    }
+
+                    def.resolve(_data);
+                    return val;
+
+                });
+
+                return def.promise;
+            },
+            GetAll: function () {
+
+                var def = $q.defer();
+
+                $http({
+                    url: "Data/Order/GetAll",
+                    method: "Post",
+                }).then(function (val) {
+
+                    var _data = angular.fromJson(val.data);
+
+                    def.resolve(_data);
+                    return val;
+
+                });
+
+                return def.promise;
+            },
         }
 
     }
@@ -2145,6 +2566,24 @@ app.config([
                 templateUrl: "html/Cart.html",
                 controller: "CartController",
                 title: "Корзина"
+            })
+             .when("/Library",
+            {
+                templateUrl: "html/Library.html",
+                controller: "LibraryController",
+                title: "Библиотека"
+            })
+             .when("/Users",
+            {
+                templateUrl: "html/Users.html",
+                controller: "UsersController",
+                title: "Пользователи"
+            })
+             .when("/Statistics",
+            {
+                templateUrl: "html/Statistics.html",
+                controller: "StatisticsController",
+                title: "Статистика"
             })
 
             .when("/Search/:str",

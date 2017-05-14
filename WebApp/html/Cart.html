@@ -7,8 +7,12 @@
                 <input type="text" class="filterInput" placeholder="Фильтр..." ng-model="filter" ng-change="DoFilter()" />
             </span>
 
-            <button ng-click=""  class="btn-info btn pull-right">
+            <button ng-click="MakeOrder()"  class="btn-info btn pull-right">
                 Оплатить {{TotalPrice}}$
+            </button>
+            
+            <button ng-click="ClearCart()" class="btn-primary btn pull-right" style="margin-right: 10px">
+                Очистить
             </button>
             <hr />
         </div>

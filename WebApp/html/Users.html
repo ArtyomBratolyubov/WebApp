@@ -1,0 +1,32 @@
+﻿<div class="col-md-9">
+    <div class="reveal-animation">
+        <div class="row">
+            <span class="pageHeader">
+                Пользователи
+                <input type="text" class="filterInput" placeholder="Фильтр..." ng-model="filter" ng-change="DoFilter()" />
+            </span>
+
+            <a href="/Company/Add" class="btn btn-default pull-right">Добавить</a>
+            <hr />
+        </div>
+        <div class="row">
+
+
+            <div class="panel" ng-repeat="model in UsersToShow">
+                <div class="panel-heading">
+                    <span style="font-size: 20px">{{model.username}} (
+                        <span ng-if="model.userRole===0">администратор</span>
+                        <span ng-if="model.userRole===1">модератор</span>
+                        <span ng-if="model.userRole===2">пользователь</span>
+                    )</span>
+                    <button ng-click="MakeModer(model.id)" class="btn btn-default btn-xs pull-right" role="button" style="background: rgb(203, 41, 41)">
+                        Модератор
+                    </button>
+                    <button ng-click="MakeUser(model.id)" class="btn btn-default btn-xs pull-right" role="button" style="background: rgb(41, 203, 102); margin-right: 10px">
+                        Пользователь
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

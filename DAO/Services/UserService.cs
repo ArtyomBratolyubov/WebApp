@@ -36,5 +36,14 @@ namespace DAO.Services
 
             return resp;
         }
+
+        public string SetRole(int userId, int role)
+        {
+            string resp = HttpActions.Post(ServiceURL.User+ "/set/role/"+role+"?userId="+userId, "");
+
+            return resp;
+        }
     }
+
+
 }

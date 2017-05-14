@@ -1,0 +1,33 @@
+﻿<div class="col-md-9">
+    <div class="reveal-animation">
+
+        <!--<div class="row">
+            <span class="pageHeader">
+                Продажи по годам
+            </span>
+            <hr />
+        </div>-->
+
+        <div class="row">
+            <div class="col-md-8">
+                <span class="pageHeader" >
+                    Продажи по годам
+                </span>
+                <hr/>
+                <canvas id="line" class="chart chart-line"
+                        chart-data="LineAllYears.data"
+                        chart-labels="LineAllYears.labels"></canvas>
+            </div>
+            <div class="col-md-4">
+                <span class="pageHeader" >
+                    Продажи по странам
+                </span>
+                <hr />
+                <canvas id="doughnut" class="chart chart-doughnut" height="250"
+                        chart-data="Cir.data"
+                        chart-labels="Cir.labels"></canvas>
+            </div>
+        </div>
+
+    </div>
+</div>

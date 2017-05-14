@@ -15,6 +15,8 @@ namespace WebApp
                                   "~/Scripts/angular-animate.js",
                                   "~/Scripts/angular-ui/ui-bootstrap.js",
                                   "~/Scripts/checklist-model.js",
+                                  "~/Scripts/Chart.js",
+                                  "~/Scripts/angular-chart.js",
                                   "~/js/main.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
